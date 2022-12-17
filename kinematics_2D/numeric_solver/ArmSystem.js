@@ -12,7 +12,7 @@ function getMatrices(radii, thetas) {
         const θ = thetas[i]
         const r = radii[i]
 
-        matrices.append(math.matrix([
+        matrices.push(math.matrix([
             [Math.cos(θ), -Math.sin(θ), r * Math.cos(θ)],
             [Math.sin(θ), Math.cos(θ), r * Math.sin(θ)],
             [0, 0, 1]
@@ -26,15 +26,28 @@ function getMatrices(radii, thetas) {
 // apply an array of matrices to an origin matrix
 function applyMatrices(origin, matrices) {
     
-    let prevMat = origin
-    let curr = {}
+    let curr = origin
 
     for(let i = 0; i < matrices.length; i++){
-        curr = math.multiply(prevMat, matrices[i])
-        prevMat = matrices[i]
+        curr = math.multiply(curr, matrices[i])
     }
 
     return curr
+
+}
+
+// Calculate MSE between target and end effector
+function getError(target, origin, radii, thetas) {
+
+    const matrices = getMatrices(radii, thetas)
+
+    // matrix representing the end effector transform 
+    const endMatrix = applyMatrices(origin, matrices)
+
+    const errX = Math.pow(target.get([0, 2]) - endMatrix.get([0, 2]), 2)
+    const errY= Math.pow(target.get([1, 2]) - endMatrix.get([1, 2]), 2)
+
+    return (errX + errY) / 2
 
 }
 
@@ -42,9 +55,9 @@ function renderMatrices(matrices, ctx) {
 
     let prevMat = matrices[0]
 
-    for (let i = 0; i < matrices.length; i++){
+    for (let i = 1; i < matrices.length; i++){
 
-        let currentMat = matrices[i]
+        let currentMat = math.multiply(prevMat, matrices[i])
 
         let startX = prevMat.get([0, 2])
         let startY = prevMat.get([1, 2])
