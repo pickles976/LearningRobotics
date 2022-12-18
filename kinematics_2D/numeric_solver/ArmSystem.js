@@ -37,7 +37,7 @@ function applyMatrices(origin, matrices) {
 }
 
 // Calculate MSE between target and end effector
-function getError(target, origin, radii, thetas) {
+function getSquaredError(target, origin, radii, thetas) {
 
     const matrices = getMatrices(radii, thetas)
 
@@ -46,6 +46,21 @@ function getError(target, origin, radii, thetas) {
 
     const errX = Math.pow(target.get([0, 2]) - endMatrix.get([0, 2]), 2)
     const errY= Math.pow(target.get([1, 2]) - endMatrix.get([1, 2]), 2)
+
+    return (errX + errY) / 2
+
+}
+
+// Calculate MSE between target and end effector
+function getError(target, origin, radii, thetas) {
+
+    const matrices = getMatrices(radii, thetas)
+
+    // matrix representing the end effector transform 
+    const endMatrix = applyMatrices(origin, matrices)
+
+    const errX = Math.abs(target.get([0, 2]) - endMatrix.get([0, 2]))
+    const errY= Math.abs(target.get([1, 2]) - endMatrix.get([1, 2]))
 
     return (errX + errY) / 2
 
