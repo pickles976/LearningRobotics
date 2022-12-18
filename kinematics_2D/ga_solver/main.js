@@ -9,8 +9,8 @@ const ORIGIN = math.matrix([
     [0, 0, 1]
 ])
 
-const tX = 100
-const tY = 100
+const tX = 600
+const tY = 600
 
 const TARGET = math.matrix([
     [1, 0, tX],
@@ -21,7 +21,7 @@ const TARGET = math.matrix([
 const RADII = [100, 75, 75, 50, 50, 25, 25, 50]
 const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
-let population = new Population(100, 0.02, THETAS, evaluate)
+let population = new Population(100, 0.1, THETAS, evaluate)
 
 
 function evaluate(thetas) {
@@ -59,7 +59,8 @@ function update() {
     context.arc(tX, tY, 10, 0, 2 * Math.PI);
     context.fill();
 
-    requestAnimationFrame(update)
+    setTimeout(update, 150)
+
 }
 
 
