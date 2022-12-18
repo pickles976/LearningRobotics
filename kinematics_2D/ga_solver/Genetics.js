@@ -1,8 +1,9 @@
 class Gene {
 
-    constructor(mutationRate, parent1, parent2) {
+    constructor(mutationRate, learnRate, parent1, parent2) {
 
         this.mutationRate = mutationRate
+        this.learnRate = learnRate
         this.thetas = []
 
         if (parent1 !== undefined && parent2 !== undefined) {
@@ -27,7 +28,8 @@ class Gene {
     mutate() {
         for (let i = 0; i < this.thetas.length; i++) {
             if (Math.random() < this.mutationRate) {
-                this.thetas[i] += Math.PI * (Math.random() - 0.5)
+                // TODO: learn rate decay mechanism?
+                this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate, 2)) * Math.PI * (Math.random() - 0.5)
             }
         }
     }
@@ -42,7 +44,10 @@ class Population {
         this.mutationRate = mutationRate
         this.fitness = fitness
 
+        this.generation = 0 
+
         this.alpha = null
+        this.minErr = Infinity
 
         // initialize population
         this.members = []
@@ -52,7 +57,7 @@ class Population {
 
     initialize(thetas) {
         for (let i = 0; i < this.pop; i++){
-            const tempGene = new Gene(this.mutationRate)
+            const tempGene = new Gene(this.mutationRate, 1.0)
             tempGene.setThetas(thetas)
             tempGene.mutate()
             this.members.push(tempGene)
@@ -62,20 +67,25 @@ class Population {
     // generate a new generation based off of these optimization params
     newGeneration() {
 
+        this.generation += 1
+
         const scores = this.getScores()
+        const softMax = this.softMax(scores)
 
         // get member with highest score
-        this.alpha = this.members[this.argMax(scores)]
+        const index = this.argMax(scores)
+        this.alpha = this.members[index]
+        this.minErr = 1 / scores[index]
 
         let newPop = []
 
         // crossover mutation
         for (let i = 0; i < this.pop; i ++) {
 
-            const p1 = this.pickParent(scores)
-            const p2 = this.pickParent(scores)
+            const p1 = this.pickParent(softMax)
+            const p2 = this.pickParent(softMax)
 
-            const tempGene = new Gene(this.mutationRate, p1, p2)
+            const tempGene = new Gene(this.mutationRate, this.minErr, p1, p2)
             newPop.push(tempGene)
 
         }
@@ -92,16 +102,13 @@ class Population {
             scores.push(this.fitness(this.members[i].thetas))
         }
 
-        // softmax scores
+        return scores
+
+    }
+
+    softMax(scores) {
         const sum = scores.reduce((acc, curr) => acc + curr, 0)
-
-        // console.log(sum)
-
-        const softMax = scores.map(score => score / sum)
-
-        // console.log(softMax)
-
-        return softMax
+        return scores.map(score => score / sum)
     }
 
     argMax(array) {

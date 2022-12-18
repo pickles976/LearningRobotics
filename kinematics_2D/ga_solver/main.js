@@ -18,10 +18,12 @@ const TARGET = math.matrix([
     [0, 0, 1]
 ])
 
+const ERROR_MARGIN = 0.01
+
 const RADII = [100, 75, 75, 50, 50, 25, 25, 50]
 const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
-let population = new Population(100, 0.1, THETAS, evaluate)
+let population = new Population(100, 0.2, THETAS, evaluate)
 
 
 function evaluate(thetas) {
@@ -36,10 +38,13 @@ function update() {
 
     context.clearRect(0,0,width,height)
 
-    population.newGeneration()
+    if (population.minErr > ERROR_MARGIN) { 
+        population.newGeneration() 
+        console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
+    }
 
     const fittest = population.alpha
-    console.log(getError(TARGET, ORIGIN, RADII, fittest.thetas))
+    // console.log(getError(TARGET, ORIGIN, RADII, fittest.thetas))
 
     // update matrices
     matrices = getMatrices(RADII, fittest.thetas)
@@ -59,7 +64,9 @@ function update() {
     context.arc(tX, tY, 10, 0, 2 * Math.PI);
     context.fill();
 
-    setTimeout(update, 150)
+    setTimeout(update, 100)
+
+    // requestAnimationFrame(update)
 
 }
 
