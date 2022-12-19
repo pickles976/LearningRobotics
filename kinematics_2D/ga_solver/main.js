@@ -24,9 +24,9 @@ const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
 // min 15 deg, max 180 deg
 const angles = [Math.PI / 12, Math.PI]
-const CONSTRAINTS = [[-Math.PI, Math.PI], angles, angles, angles, angles, angles, angles, angles]
+const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles, angles, angles, angles]
 
-const PENALTY = 100000
+const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
 
 let population = new Population(100, 0.2, THETAS, evaluate)
 
@@ -34,10 +34,9 @@ let population = new Population(100, 0.2, THETAS, evaluate)
 function evaluate(thetas) {
 
     let totalErr = 0
-
     let sumThetas = 0
 
-    // check that all joints are within constraints
+    // check that all joints are within theta constraints
     for (let i = 0; i < thetas.length; i++ ){
 
         sumThetas += thetas[i]
@@ -47,13 +46,21 @@ function evaluate(thetas) {
 
     }
 
-    // // make sure arm doesn't wrap around on itself
+    // check that links do not intersect
+    let matrices = getMatrices(RADII, thetas)
+    matrices = [ORIGIN].concat(matrices)
+
+    let lines = getLines(matrices)
+
+    // if (linesIntersect(lines)) {
+    //     renderMatrices(matrices, context)
+    // }
+    totalErr += linesIntersect(lines) ? PENALTY : 0
+    
+    // make sure arm doesn't wrap around on itself
     totalErr += ((sumThetas < Math.PI * 2) && (sumThetas > -Math.PI * 2)) ? 0 : PENALTY
 
-    // if (sumThetas > Math.PI * 2){
-    //     console.log(`Total angle: ${sumThetas}`)
-    // }
-
+    // get distance-based error
     totalErr += getSquaredError(TARGET, ORIGIN, RADII, thetas)
 
     return 1 / totalErr
@@ -70,6 +77,11 @@ function update() {
         population.newGeneration() 
         console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
     }
+
+    // while(population.minErr > ERROR_MARGIN) {
+    //     population.newGeneration()
+    //     console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
+    // }
 
     const fittest = population.alpha
     // console.log(getError(TARGET, ORIGIN, RADII, fittest.thetas))
@@ -92,9 +104,9 @@ function update() {
     context.arc(tX, tY, 10, 0, 2 * Math.PI);
     context.fill();
 
-    setTimeout(update, 100)
+    // setTimeout(update, 50)
 
-    // requestAnimationFrame(update)
+    requestAnimationFrame(update)
 
 }
 
