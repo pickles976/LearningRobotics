@@ -52,6 +52,8 @@ function getSquaredErrorDist(target, origin, radii, thetas) {
 }
 
 // Calculate MSE between target and end effector transforms
+// TODO: normalize distance to end effector space radius
+// This way distance and rotation can be related by the same linear relationship
 function getSquaredError(target, origin, radii, thetas) {
 
     const ERROR_CORRECTION = 10
@@ -64,7 +66,6 @@ function getSquaredError(target, origin, radii, thetas) {
     const errX = Math.abs(target.get([0, 2]) - endMatrix.get([0, 2]))
     const errY = Math.abs(target.get([1, 2]) - endMatrix.get([1, 2]))
 
-    // TODO: find a better way to calculate rotational
     // calculate rotation error
     let errRot = 0
     errRot += Math.abs(target.get([0, 0]) - endMatrix.get([0, 0]))

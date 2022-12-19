@@ -25,7 +25,7 @@ const ORIGIN = math.matrix([
 
 const tX = 300 + Math.random() * 400
 const tY = 300 + Math.random() * 400
-const tθ = Math.PI / 4
+const tθ = (Math.random() - 0.5) * Math.PI * 4
 
 const TARGET = math.matrix([
     [Math.cos(tθ), -Math.sin(tθ), tX],
@@ -34,7 +34,7 @@ const TARGET = math.matrix([
 ])
 
 const ERROR_MARGIN = 0.5
-const RADII = [100, 75, 75, 50, 50, 25, 25, 50]
+const RADII = [100, 75, 75, 50, 50, 25, 25, 25]
 const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
 // min 15 deg, max 180 deg
@@ -85,6 +85,8 @@ function update() {
         console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
     }
 
+    // population.newGeneration()
+
     // while(population.minErr > ERROR_MARGIN) {
     //     population.newGeneration()
     //     console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
@@ -103,9 +105,11 @@ function update() {
     // render target
     drawTransform(context, TARGET, "#0000FF")
 
-    setTimeout(update, 50)
+    // setTimeout(update, 50)
 
-    // requestAnimationFrame(update)
+    // TARGET.set([0,2], TARGET.get([0,2]) + 1)
+
+    requestAnimationFrame(update)
 
 }
 

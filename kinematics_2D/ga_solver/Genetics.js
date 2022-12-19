@@ -32,7 +32,7 @@ class Gene {
                 // this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate, 2)) * Math.PI * (Math.random() - 0.5)
                 // this.thetas[i] += Math.min(1.0, this.learnRate) * Math.PI * (Math.random() - 0.5)
                 // this.thetas[i] += Math.PI * (Math.random() - 0.5)
-                this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate / 5, 2)) * Math.PI * (Math.random() - 0.5)
+                this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate / 5, 2)) * Math.PI * (Math.random() - 0.5) // account for threshold
             }
         }
     }
