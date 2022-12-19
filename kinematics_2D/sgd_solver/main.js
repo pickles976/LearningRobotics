@@ -23,8 +23,8 @@ const ORIGIN = math.matrix([
     [0, 0, 1]
 ])
 
-const tX = Math.random() * width
-const tY = Math.random() * height
+const tX = width / 3 + Math.random() * width / 3
+const tY = height / 3 + Math.random() * height / 3
 const tθ = (Math.random() - 0.5) * Math.PI * 4
 
 const TARGET = math.matrix([
