@@ -42,16 +42,23 @@ class Layer {
      */
     backward(nextMat, errFn, learnRate) {
 
-        const step = 0.001
+        // Get the output for the current matrix
+        const prod = math.multiply(this.prevMat, this.matrix)
+        const output = math.multiply(prod, nextMat)
+
+        // Get the delta'd output
+        const step = 0.00001
         const deltaMatrix = this.generateMatrix(this.theta + step) // get a matrix with a nudged theta
-        const totalMatrix = math.multiply(this.prevMat, deltaMatrix) // get the product of all previous matrices + this matrix
-        const output = math.multiply(totalMatrix, nextMat) // get the output
+        const prodDelta = math.multiply(this.prevMat, deltaMatrix) // get the product of all previous matrices + this matrix
+        const outputDelta = math.multiply(prodDelta, nextMat) // get the output of the delta'd matrix
 
         // Get dErr(END)/dθ for this joint in the arm
-        const dTheta = errFn(output) / step
+        // f(x + h) - f(x) / h
+        const dTheta = (errFn(outputDelta) - errFn(output)) / step
+
+        // console.log(`dθ ${dTheta}`)
 
         // nudge theta based on slope
-        // TODO: better nudge
         this.theta -= dTheta * learnRate
 
     }
@@ -70,7 +77,7 @@ class Layer {
 
 class IKSystem {
 
-    ORIGIN = math.matrix([
+    IDENTITY = math.matrix([
         [1, 0, 0],
         [0, 1, 0],
         [0, 0, 1]
@@ -83,7 +90,10 @@ class IKSystem {
 
         this.endEffector = null
 
-        this.learnRate = 0.01
+        this.learnRate = 0.5
+        this.currentLearnRate = this.learnRate
+        this.decay = 0.00005
+        this.iterations = 0
 
         // initialize layers
         for (let i = 0; i < radii.length; i++) {
@@ -117,14 +127,18 @@ class IKSystem {
      * Performs the backward pass on all of the transform layers of our arm.
      * @param {math.matrix} endMat output of the forward pass (our arms simulated position)
      */
-    backward(endMat) {
+    backward() {
 
-        let nextMat = endMat
+        let nextMat = this.IDENTITY
         
         for (let i = this.layers.length - 1; i >= 0; i--) {
-            this.layers[i].backward(nextMat, this.errFn, this.learnRate)
+            this.layers[i].backward(nextMat, this.errFn, this.currentLearnRate)
             nextMat = math.multiply(this.layers[i].matrix, nextMat)
         }
+
+        // for (let i = 0; i < dThetas; i++) {
+        //     this.layers[i].theta -= dThetas[i] * this.currentLearnRate
+        // }
 
     }
 
@@ -134,8 +148,14 @@ class IKSystem {
      */
     update(origin) {
         this.endEffector = this.forward(origin)
-        console.log(`Error: ${this.errFn(this.endEffector)}`)
-        this.backward(this.endEffector)
+        console.log(`Loss: ${this.errFn(this.endEffector)}`)
+        this.backward()
+        this.updateParams()
+    }
+
+    updateParams() {
+        this.iterations += 1
+        this.currentLearnRate = this.learnRate * (1/ (1+this.decay*this.iterations))
     }
 
     render(ctx, origin) {

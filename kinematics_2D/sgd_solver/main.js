@@ -23,8 +23,8 @@ const ORIGIN = math.matrix([
     [0, 0, 1]
 ])
 
-const tX = 300 + Math.random() * 400
-const tY = 300 + Math.random() * 400
+const tX = Math.random() * width
+const tY = Math.random() * height
 const tθ = (Math.random() - 0.5) * Math.PI * 4
 
 const TARGET = math.matrix([
@@ -45,8 +45,12 @@ const PENALTY = 1000000 // penalty is so high because these configurations are N
 
 let ikSystem = new IKSystem(RADII, THETAS, CONSTRAINTS, errFn)
 
-for (let i = 0; i < 4; i++) {
+for (let i = 0; i < 2; i++) {
+    context.clearRect(0,0,width,height)
     ikSystem.update(ORIGIN)
+    ikSystem.render(context, ORIGIN)
+    drawTransform(context, ikSystem.endEffector, "#000000")
+    drawTransform(context, TARGET, "#0000FF")
 }
 
 function update() {
@@ -64,7 +68,7 @@ function update() {
 
     // setTimeout(update, 150)
 
-    // requestAnimationFrame(update)
+    requestAnimationFrame(update)
 
 }
 
@@ -104,10 +108,10 @@ function drawTransform(ctx, matrix, color) {
 // Calculate MSE between target and end effector distance
 function getSquaredError(expected, actual) {
 
-    const errX = Math.pow(expected.get([0, 2]) - actual.get([0, 2]), 2)
-    const errY= Math.pow(expected.get([1, 2]) - actual.get([1, 2]), 2)
+    const errX = Math.pow(expected.get([0, 2]) / width - actual.get([0, 2]) / width, 2)
+    const errY = Math.pow(expected.get([1, 2]) / height - actual.get([1, 2]) / height, 2)
 
-    return (errX + errY) / 2
+    return errX + errY
 
 }
 
