@@ -9,8 +9,8 @@ const ORIGIN = math.matrix([
     [0, 0, 1]
 ])
 
-const tX = 600
-const tY = 600
+const tX = 300 + Math.random() * 400
+const tY = 300 + Math.random() * 400
 
 const TARGET = math.matrix([
     [1, 0, tX],
@@ -18,17 +18,45 @@ const TARGET = math.matrix([
     [0, 0, 1]
 ])
 
-const ERROR_MARGIN = 0.01
-
+const ERROR_MARGIN = 0.5
 const RADII = [100, 75, 75, 50, 50, 25, 25, 50]
 const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
+// min 15 deg, max 180 deg
+const angles = [Math.PI / 12, Math.PI]
+const CONSTRAINTS = [[-Math.PI, Math.PI], angles, angles, angles, angles, angles, angles, angles]
+
+const PENALTY = 100000
+
 let population = new Population(100, 0.2, THETAS, evaluate)
 
-
+// Fitness function we pass into our genetic algorithm
 function evaluate(thetas) {
 
-    return 1 / getSquaredError(TARGET, ORIGIN, RADII, thetas)
+    let totalErr = 0
+
+    let sumThetas = 0
+
+    // check that all joints are within constraints
+    for (let i = 0; i < thetas.length; i++ ){
+
+        sumThetas += thetas[i]
+
+        // theta is within constraints
+        totalErr += (thetas[i] > CONSTRAINTS[i][0] && thetas[i] < CONSTRAINTS[i][1]) ? 0 : PENALTY
+
+    }
+
+    // // make sure arm doesn't wrap around on itself
+    totalErr += ((sumThetas < Math.PI * 2) && (sumThetas > -Math.PI * 2)) ? 0 : PENALTY
+
+    // if (sumThetas > Math.PI * 2){
+    //     console.log(`Total angle: ${sumThetas}`)
+    // }
+
+    totalErr += getSquaredError(TARGET, ORIGIN, RADII, thetas)
+
+    return 1 / totalErr
 
 }
 
