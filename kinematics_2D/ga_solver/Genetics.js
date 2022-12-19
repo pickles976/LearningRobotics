@@ -29,9 +29,10 @@ class Gene {
         for (let i = 0; i < this.thetas.length; i++) {
             if (Math.random() < this.mutationRate) {
                 // TODO: learn rate decay mechanism?
-                this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate, 2)) * Math.PI * (Math.random() - 0.5)
+                // this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate, 2)) * Math.PI * (Math.random() - 0.5)
                 // this.thetas[i] += Math.min(1.0, this.learnRate) * Math.PI * (Math.random() - 0.5)
                 // this.thetas[i] += Math.PI * (Math.random() - 0.5)
+                this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate / 5, 2)) * Math.PI * (Math.random() - 0.5)
             }
         }
     }

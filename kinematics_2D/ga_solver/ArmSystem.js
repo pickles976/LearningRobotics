@@ -36,8 +36,8 @@ function applyMatrices(origin, matrices) {
 
 }
 
-// Calculate MSE between target and end effector
-function getSquaredError(target, origin, radii, thetas) {
+// Calculate MSE between target and end effector distance
+function getSquaredErrorDist(target, origin, radii, thetas) {
 
     const matrices = getMatrices(radii, thetas)
 
@@ -51,8 +51,34 @@ function getSquaredError(target, origin, radii, thetas) {
 
 }
 
+// Calculate MSE between target and end effector transforms
+function getSquaredError(target, origin, radii, thetas) {
+
+    const ERROR_CORRECTION = 10
+
+    const matrices = getMatrices(radii, thetas)
+
+    // matrix representing the end effector transform 
+    const endMatrix = applyMatrices(origin, matrices)
+
+    const errX = Math.abs(target.get([0, 2]) - endMatrix.get([0, 2]))
+    const errY = Math.abs(target.get([1, 2]) - endMatrix.get([1, 2]))
+
+    // TODO: find a better way to calculate rotational
+    // calculate rotation error
+    let errRot = 0
+    errRot += Math.abs(target.get([0, 0]) - endMatrix.get([0, 0]))
+    errRot += Math.abs(target.get([0, 1]) - endMatrix.get([0, 1]))
+    errRot += Math.abs(target.get([1, 0]) - endMatrix.get([1, 0]))
+    errRot += Math.abs(target.get([1, 1]) - endMatrix.get([1, 1]))
+    errRot *= ERROR_CORRECTION
+
+    return (errX + errY + errRot) / 2
+
+}
+
 // Calculate MSE between target and end effector
-function getError(target, origin, radii, thetas) {
+function getErrorDist(target, origin, radii, thetas) {
 
     const matrices = getMatrices(radii, thetas)
 
@@ -66,7 +92,7 @@ function getError(target, origin, radii, thetas) {
 
 }
 
-function renderMatrices(matrices, ctx) {
+function renderArm(matrices, ctx) {
 
     let prevMat = matrices[0]
 

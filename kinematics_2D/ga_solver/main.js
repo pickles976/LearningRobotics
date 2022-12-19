@@ -3,6 +3,20 @@ context = canvas.getContext("2d")
 width = canvas.width = window.innerWidth
 height = canvas.height = window.innerHeight
 
+const AXES_LENGTH = 50
+
+const X_AXIS = math.matrix([
+    [1, 0, AXES_LENGTH],
+    [0, 1, 0],
+    [0, 0, 1]
+])
+
+const Y_AXIS = math.matrix([
+    [1, 0, 0],
+    [0, 1, AXES_LENGTH],
+    [0, 0, 1]
+])
+
 const ORIGIN = math.matrix([
     [1, 0, width / 2],
     [0, 1, height / 2],
@@ -11,10 +25,11 @@ const ORIGIN = math.matrix([
 
 const tX = 300 + Math.random() * 400
 const tY = 300 + Math.random() * 400
+const tθ = Math.PI / 4
 
 const TARGET = math.matrix([
-    [1, 0, tX],
-    [0, 1, tY],
+    [Math.cos(tθ), -Math.sin(tθ), tX],
+    [Math.sin(tθ), Math.cos(tθ), tY],
     [0, 0, 1]
 ])
 
@@ -24,6 +39,7 @@ const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
 // min 15 deg, max 180 deg
 const angles = [Math.PI / 12, Math.PI]
+// const angles = [-Math.PI, Math.PI]
 const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles, angles, angles, angles]
 
 const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
@@ -38,29 +54,20 @@ function evaluate(thetas) {
 
     // check that all joints are within theta constraints
     for (let i = 0; i < thetas.length; i++ ){
-
         sumThetas += thetas[i]
-
-        // theta is within constraints
         totalErr += (thetas[i] > CONSTRAINTS[i][0] && thetas[i] < CONSTRAINTS[i][1]) ? 0 : PENALTY
-
     }
 
     // check that links do not intersect
     let matrices = getMatrices(RADII, thetas)
-    matrices = [ORIGIN].concat(matrices)
-
-    let lines = getLines(matrices)
-
-    // if (linesIntersect(lines)) {
-    //     renderMatrices(matrices, context)
-    // }
+    let lines = getLines([ORIGIN].concat(matrices))
     totalErr += linesIntersect(lines) ? PENALTY : 0
     
-    // make sure arm doesn't wrap around on itself
-    totalErr += ((sumThetas < Math.PI * 2) && (sumThetas > -Math.PI * 2)) ? 0 : PENALTY
+    // // make sure arm doesn't wrap around on itself
+    // totalErr += ((sumThetas < Math.PI * 2) && (sumThetas > -Math.PI * 2)) ? 0 : PENALTY
 
     // get distance-based error
+    // totalErr += getSquaredErrorDist(TARGET, ORIGIN, RADII, thetas)
     totalErr += getSquaredError(TARGET, ORIGIN, RADII, thetas)
 
     return 1 / totalErr
@@ -84,29 +91,53 @@ function update() {
     // }
 
     const fittest = population.alpha
-    // console.log(getError(TARGET, ORIGIN, RADII, fittest.thetas))
 
-    // update matrices
+    // Get and render matrices
     matrices = getMatrices(RADII, fittest.thetas)
     fullChain = [ORIGIN].concat(matrices)
-    renderMatrices(fullChain, context)
+    renderArm(fullChain, context)
 
     // render end-effector
-    const hand = applyMatrices(ORIGIN, matrices)
-    context.fillStyle = "#000000"
-    context.beginPath();
-    context.arc(hand.get([0, 2]), hand.get([1, 2]), 10, 0, 2 * Math.PI);
-    context.fill();
+    drawTransform(context, applyMatrices(ORIGIN, matrices), "#000000")
 
     // render target
-    context.beginPath();
-    context.fillStyle = "#FF0000"
-    context.arc(tX, tY, 10, 0, 2 * Math.PI);
-    context.fill();
+    drawTransform(context, TARGET, "#0000FF")
 
-    // setTimeout(update, 50)
+    setTimeout(update, 50)
 
-    requestAnimationFrame(update)
+    // requestAnimationFrame(update)
+
+}
+
+function drawTransform(ctx, matrix, color) {
+
+    ctx.fillStyle = color
+
+    // Get axes relative to transform matrix
+    const startPoint = getXYfromMatrix(matrix)
+    const xAxis = getXYfromMatrix(math.multiply(matrix, X_AXIS))
+    const yAxis = getXYfromMatrix(math.multiply(matrix, Y_AXIS))
+
+    // circle
+    ctx.beginPath();
+    ctx.arc(startPoint[0], startPoint[1], 10, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // draw x Axis 
+    ctx.strokeStyle = "#FF0000"
+    ctx.lineWidth = 2.5
+    ctx.beginPath()
+    ctx.moveTo(startPoint[0], startPoint[1])
+    ctx.lineTo(xAxis[0] , xAxis[1])
+    ctx.stroke()
+
+    // draw y Axis
+    ctx.strokeStyle = "#FFFF00"
+    ctx.lineWidth = 2.5
+    ctx.beginPath()
+    ctx.moveTo(startPoint[0], startPoint[1])
+    ctx.lineTo(yAxis[0] , yAxis[1])
+    ctx.stroke()
 
 }
 

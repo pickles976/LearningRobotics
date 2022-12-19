@@ -57,3 +57,8 @@ function linesIntersect(lines) {
     return false
 
 }
+
+// get the X and Y coords from a homogeneous transformation matrix
+function getXYfromMatrix(matrix) {
+    return [matrix.get([0, 2]), matrix.get([1, 2])]
+}
