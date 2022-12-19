@@ -37,9 +37,8 @@ const ERROR_MARGIN = 0.5
 const RADII = [100, 75, 75, 50, 50, 25, 25, 25]
 const THETAS = [0, 0, 0, 0, 0, 0, 0, 0]
 
-// min 15 deg, max 180 deg
-const angles = [Math.PI / 12, Math.PI]
-// const angles = [-Math.PI, Math.PI]
+const angles = [Math.PI / 12, Math.PI] // min 15 deg, max 180 deg
+// const angles = [-Math.PI, Math.PI] // full rotation
 const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles, angles, angles, angles]
 
 const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
@@ -63,11 +62,7 @@ function evaluate(thetas) {
     let lines = getLines([ORIGIN].concat(matrices))
     totalErr += linesIntersect(lines) ? PENALTY : 0
     
-    // // make sure arm doesn't wrap around on itself
-    // totalErr += ((sumThetas < Math.PI * 2) && (sumThetas > -Math.PI * 2)) ? 0 : PENALTY
-
-    // get distance-based error
-    // totalErr += getSquaredErrorDist(TARGET, ORIGIN, RADII, thetas)
+    //
     totalErr += getSquaredError(TARGET, ORIGIN, RADII, thetas)
 
     return 1 / totalErr
