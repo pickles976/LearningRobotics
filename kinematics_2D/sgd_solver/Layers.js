@@ -5,6 +5,9 @@ class Layer {
         this.theta = (theta === undefined) ? Math.random() : theta
         this.matrix = this.generateMatrix(this.theta)
         this.prevMat = null
+        
+        this.momentumRetain = 0.25 // how much momentum carries over
+        this.momentum = 0.0
     }
 
     /**
@@ -46,7 +49,8 @@ class Layer {
 
         // nudge theta based on slope
         // TODO: clamp dTheta so we dont bounce around if the learning rate/loss fn is too large
-        this.theta -= dTheta * learnRate
+        this.theta -= (this.momentum * this.momentumRetain) + (dTheta * learnRate)
+        this.momentum = dTheta
 
     }
 

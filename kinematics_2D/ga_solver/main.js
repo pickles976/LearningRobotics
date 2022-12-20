@@ -75,19 +75,19 @@ function update() {
 
     context.clearRect(0,0,width,height)
 
-    // if (population.minErr > ERROR_MARGIN) { 
-    //     population.newGeneration() 
+    if (population.minErr > ERROR_MARGIN) { 
+        population.newGeneration() 
+        console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
+    }
+
+    // UNCOMMENT FOR PERFORMANCE METRICS
+    // population.newGeneration()
+    // let start = Date.now()
+    // while(population.minErr > ERROR_MARGIN) {
+    //     population.newGeneration()
     //     console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
     // }
-
-    // population.newGeneration()
-
-    let start = Date.now()
-    while(population.minErr > ERROR_MARGIN) {
-        population.newGeneration()
-        // console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
-    }
-    console.log(`Elapsed time: ${(Date.now() - start)}ms`)
+    // console.log(`Elapsed time: ${(Date.now() - start)}ms`)
 
     const fittest = population.alpha
 
