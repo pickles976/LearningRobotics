@@ -23,8 +23,8 @@ const ORIGIN = math.matrix([
     [0, 0, 1]
 ])
 
-const tX = 300 + Math.random() * 400
-const tY = 300 + Math.random() * 400
+const tX = width / 3 + Math.random() * width / 3
+const tY = height / 3 + Math.random() * height / 3
 const tθ = (Math.random() - 0.5) * Math.PI * 4
 
 const TARGET = math.matrix([
@@ -69,23 +69,25 @@ function evaluate(thetas) {
 
 }
 
-// population.newGeneration()
+population.newGeneration()
 
 function update() {
 
     context.clearRect(0,0,width,height)
 
-    if (population.minErr > ERROR_MARGIN) { 
-        population.newGeneration() 
-        console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
-    }
+    // if (population.minErr > ERROR_MARGIN) { 
+    //     population.newGeneration() 
+    //     console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
+    // }
 
     // population.newGeneration()
 
-    // while(population.minErr > ERROR_MARGIN) {
-    //     population.newGeneration()
-    //     console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
-    // }
+    let start = Date.now()
+    while(population.minErr > ERROR_MARGIN) {
+        population.newGeneration()
+        // console.log(`Generation: ${population.generation}, Minimum Error: ${population.minErr}`)
+    }
+    console.log(`Elapsed time: ${(Date.now() - start)}ms`)
 
     const fittest = population.alpha
 
@@ -104,7 +106,7 @@ function update() {
 
     // TARGET.set([0,2], TARGET.get([0,2]) + 1)
 
-    requestAnimationFrame(update)
+    // requestAnimationFrame(update)
 
 }
 

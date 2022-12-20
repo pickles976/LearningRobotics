@@ -44,16 +44,19 @@ const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles
 const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
 
 let ikSystem = new IKSystem(RADII, THETAS, CONSTRAINTS, ORIGIN)
-ikSystem.setTarget(TARGET)
-ikSystem.update()
+// ikSystem.setTarget(TARGET)
+// ikSystem.update()
+let start = Date.now()
+ikSystem.solve(TARGET, 0.00001)
+console.log(`Elapsed time: ${(Date.now() - start)}ms`)
 
 function update() {
 
     context.clearRect(0,0,width,height)
 
-    if (ikSystem.loss > 0.00001) {
-        ikSystem.update()
-    }
+    // if (ikSystem.loss > 0.00001) {
+    //     ikSystem.update()
+    // }
 
     ikSystem.render(context)
 

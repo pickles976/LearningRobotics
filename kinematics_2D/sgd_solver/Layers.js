@@ -30,11 +30,7 @@ class Layer {
      * 
      * @param {math.matrix} nextMat the E x F matrix from our example
      */
-    backward(nextMat, errFn, learnRate) {
-
-        // Get the output for the current matrix
-        const prod = math.multiply(this.prevMat, this.matrix)
-        const output = math.multiply(prod, nextMat)
+    backward(nextMat, errFn, learnRate, output) {
 
         // Get the delta'd output
         const step = 0.00001
@@ -136,7 +132,7 @@ class IKSystem {
         let nextMat = this.IDENTITY
         
         for (let i = this.layers.length - 1; i >= 0; i--) {
-            this.layers[i].backward(nextMat, this.error(), this.currentLearnRate)
+            this.layers[i].backward(nextMat, this.error(), this.currentLearnRate, this.endEffector)
             nextMat = math.multiply(this.layers[i].matrix, nextMat)
         }
 
@@ -149,9 +145,23 @@ class IKSystem {
     update() {
         this.endEffector = this.forward(this.origin)
         this.loss = this.error()(this.endEffector)
-        console.log(`Loss: ${this.loss}`)
+        // console.log(`Loss: ${this.loss}`)
         this.backward()
         this.updateParams()
+    }
+
+    // 0.00001
+    solve(target, thresh) {
+        this.setTarget(target)
+        while (this.iterations < 250){
+            if (this.loss > thresh) {
+                this.update()
+            } else {
+                console.log('Optimal solution found')
+                return
+            }
+        }
+        console.log('Failed to solve in 250 iterations!')
     }
 
     updateParams() {
@@ -160,6 +170,7 @@ class IKSystem {
     }
 
     // Error function
+    // Using closures to pass data from the IKSystem to the individual layers, kinda sus
     error() {
 
         const armLength = this.armLength

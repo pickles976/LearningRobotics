@@ -1,8 +1,3 @@
-// get the X and Y coords from a homogeneous transformation matrix
-function getXYfromMatrix(matrix) {
-    return [matrix.get([0, 2]), matrix.get([1, 2])]
-}
-
 // Draw a transform object
 function drawTransform(ctx, matrix, color) {
 
