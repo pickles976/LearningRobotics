@@ -92,7 +92,7 @@ class IKSystem {
 
         this.learnRate = 0.5
         this.currentLearnRate = this.learnRate
-        this.decay = 0.000005
+        this.decay = 0.0000005
         this.iterations = 0
 
         // initialize layers

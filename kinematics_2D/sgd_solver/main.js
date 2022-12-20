@@ -108,10 +108,19 @@ function drawTransform(ctx, matrix, color) {
 // Calculate MSE between target and end effector distance
 function getSquaredError(expected, actual) {
 
+    const ROT_CORRECTION = Math.PI
+
     const errX = Math.pow(expected.get([0, 2]) / width - actual.get([0, 2]) / width, 2)
     const errY = Math.pow(expected.get([1, 2]) / height - actual.get([1, 2]) / height, 2)
 
-    return errX + errY
+    let errRot = 0
+    errRot += Math.pow(expected.get([0, 0]) / ROT_CORRECTION - actual.get([0, 0]) / ROT_CORRECTION, 2)
+    errRot += Math.pow(expected.get([0, 1]) / ROT_CORRECTION - actual.get([0, 1]) / ROT_CORRECTION, 2)
+    errRot += Math.pow(expected.get([1, 0]) / ROT_CORRECTION - actual.get([1, 0]) / ROT_CORRECTION, 2)
+    errRot += Math.pow(expected.get([1, 1]) / ROT_CORRECTION - actual.get([1, 1]) / ROT_CORRECTION, 2)
+    errRot /= ROT_CORRECTION
+
+    return errX + errY + errRot
 
 }
 
