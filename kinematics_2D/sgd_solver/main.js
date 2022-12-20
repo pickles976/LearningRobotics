@@ -57,7 +57,10 @@ function update() {
 
     context.clearRect(0,0,width,height)
 
-    ikSystem.update(ORIGIN)
+    if (getSquaredError(TARGET, ikSystem.endEffector) > 0.00001) {
+        ikSystem.update(ORIGIN)
+    }
+
     ikSystem.render(context, ORIGIN)
 
     // render end-effector
@@ -108,10 +111,13 @@ function drawTransform(ctx, matrix, color) {
 // Calculate MSE between target and end effector distance
 function getSquaredError(expected, actual) {
 
+    // This is kind of hacky, but we want to normalize our error functions 
     const ROT_CORRECTION = Math.PI
+    const X_CORRECTION = width / 2
+    const Y_CORRECTION = height / 2
 
-    const errX = Math.pow(expected.get([0, 2]) / width - actual.get([0, 2]) / width, 2)
-    const errY = Math.pow(expected.get([1, 2]) / height - actual.get([1, 2]) / height, 2)
+    const errX = Math.pow(expected.get([0, 2]) / X_CORRECTION - actual.get([0, 2]) / X_CORRECTION, 2)
+    const errY = Math.pow(expected.get([1, 2]) / Y_CORRECTION - actual.get([1, 2]) / Y_CORRECTION, 2)
 
     let errRot = 0
     errRot += Math.pow(expected.get([0, 0]) / ROT_CORRECTION - actual.get([0, 0]) / ROT_CORRECTION, 2)
@@ -120,18 +126,14 @@ function getSquaredError(expected, actual) {
     errRot += Math.pow(expected.get([1, 1]) / ROT_CORRECTION - actual.get([1, 1]) / ROT_CORRECTION, 2)
     errRot /= ROT_CORRECTION
 
-    return errX + errY + errRot
+    return (errX + errY + errRot)
 
 }
 
 // Error function we pass into the solver
 function errFn(output) {
 
-    let totalErr = 0
-
-    totalErr += getSquaredError(TARGET, output)
-
-    return totalErr
+    return getSquaredError(TARGET, output)
 
 }
 
