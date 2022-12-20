@@ -1,19 +1,10 @@
 class Layer {
     
     constructor(radius, constraints, theta) {
-
         this.radius = radius
-        this.constraints = constraints
-
         this.theta = (theta === undefined) ? Math.random() : theta
         this.matrix = this.generateMatrix(this.theta)
-
         this.prevMat = null
-
-    }
-
-    setNext(nextLayer) {
-        this.next = nextLayer
     }
 
     /**
@@ -38,7 +29,6 @@ class Layer {
      * Using this difference we can adjust the theta to descend the gradient
      * 
      * @param {math.matrix} nextMat the E x F matrix from our example
-     * @param {function} errFn Error function
      */
     backward(nextMat, errFn, learnRate) {
 
@@ -59,6 +49,7 @@ class Layer {
         // console.log(`dθ ${dTheta}`)
 
         // nudge theta based on slope
+        // TODO: clamp dTheta so we dont bounce around if the learning rate/loss fn is too large
         this.theta -= dTheta * learnRate
 
     }
@@ -83,23 +74,36 @@ class IKSystem {
         [0, 0, 1]
     ])
      
-    constructor(radii, thetas, constraints, errFn) {
+    constructor(radii, thetas, constraints, origin) {
         
+        // data
         this.layers = []
-        this.errFn = errFn
+        this.origin = origin
+        this.radii = radii
+        this.armLength = radii.reduce((acc, curr) => acc + curr, 0)
 
+        // Target vs End Effector
         this.endEffector = null
+        this.target = null
 
+        // learning params
         this.learnRate = 0.5
         this.currentLearnRate = this.learnRate
         this.decay = 0.0000005
         this.iterations = 0
+
+        // readables
+        this.loss = 1.0
 
         // initialize layers
         for (let i = 0; i < radii.length; i++) {
             this.layers.push(new Layer(radii[i], constraints[i], thetas[i]))
         }
 
+    }
+
+    setTarget(target) {
+        this.target = target
     }
 
     /**
@@ -132,13 +136,9 @@ class IKSystem {
         let nextMat = this.IDENTITY
         
         for (let i = this.layers.length - 1; i >= 0; i--) {
-            this.layers[i].backward(nextMat, this.errFn, this.currentLearnRate)
+            this.layers[i].backward(nextMat, this.error(), this.currentLearnRate)
             nextMat = math.multiply(this.layers[i].matrix, nextMat)
         }
-
-        // for (let i = 0; i < dThetas; i++) {
-        //     this.layers[i].theta -= dThetas[i] * this.currentLearnRate
-        // }
 
     }
 
@@ -146,9 +146,10 @@ class IKSystem {
      * 
      * @param {math.matrix} origin root transform of the arm.
      */
-    update(origin) {
-        this.endEffector = this.forward(origin)
-        console.log(`Loss: ${this.errFn(this.endEffector)}`)
+    update() {
+        this.endEffector = this.forward(this.origin)
+        this.loss = this.error()(this.endEffector)
+        console.log(`Loss: ${this.loss}`)
         this.backward()
         this.updateParams()
     }
@@ -158,9 +159,26 @@ class IKSystem {
         this.currentLearnRate = this.learnRate * (1/ (1+this.decay*this.iterations))
     }
 
-    render(ctx, origin) {
+    // Error function
+    error() {
 
-        let prevMat = origin
+        const armLength = this.armLength
+        const target = this.target
+
+        function errFn(output) {
+            let totalErr = 0
+            totalErr += getTransformError(target, output, Math.PI, armLength)
+            return totalErr
+        }
+
+        return errFn
+
+    }
+
+
+    render(ctx) {
+
+        let prevMat = this.origin
 
         for (let i = 0; i < this.layers.length; i++){
     

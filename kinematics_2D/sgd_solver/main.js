@@ -43,25 +43,19 @@ const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles
 
 const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
 
-let ikSystem = new IKSystem(RADII, THETAS, CONSTRAINTS, errFn)
-
-for (let i = 0; i < 2; i++) {
-    context.clearRect(0,0,width,height)
-    ikSystem.update(ORIGIN)
-    ikSystem.render(context, ORIGIN)
-    drawTransform(context, ikSystem.endEffector, "#000000")
-    drawTransform(context, TARGET, "#0000FF")
-}
+let ikSystem = new IKSystem(RADII, THETAS, CONSTRAINTS, ORIGIN)
+ikSystem.setTarget(TARGET)
+ikSystem.update()
 
 function update() {
 
     context.clearRect(0,0,width,height)
 
-    if (getSquaredError(TARGET, ikSystem.endEffector) > 0.00001) {
-        ikSystem.update(ORIGIN)
+    if (ikSystem.loss > 0.00001) {
+        ikSystem.update()
     }
 
-    ikSystem.render(context, ORIGIN)
+    ikSystem.render(context)
 
     // render end-effector
     drawTransform(context, ikSystem.endEffector, "#000000")
@@ -73,73 +67,6 @@ function update() {
 
     requestAnimationFrame(update)
 
-}
-
-// TODO: move these to utils.js
-function drawTransform(ctx, matrix, color) {
-
-    ctx.fillStyle = color
-
-    // Get axes relative to transform matrix
-    const startPoint = getXYfromMatrix(matrix)
-    const xAxis = getXYfromMatrix(math.multiply(matrix, X_AXIS))
-    const yAxis = getXYfromMatrix(math.multiply(matrix, Y_AXIS))
-
-    // circle
-    ctx.beginPath();
-    ctx.arc(startPoint[0], startPoint[1], 10, 0, 2 * Math.PI);
-    ctx.fill();
-
-    // draw x Axis 
-    ctx.strokeStyle = "#FF0000"
-    ctx.lineWidth = 2.5
-    ctx.beginPath()
-    ctx.moveTo(startPoint[0], startPoint[1])
-    ctx.lineTo(xAxis[0] , xAxis[1])
-    ctx.stroke()
-
-    // draw y Axis
-    ctx.strokeStyle = "#FFFF00"
-    ctx.lineWidth = 2.5
-    ctx.beginPath()
-    ctx.moveTo(startPoint[0], startPoint[1])
-    ctx.lineTo(yAxis[0] , yAxis[1])
-    ctx.stroke()
-
-}
-
-// Calculate MSE between target and end effector distance
-function getSquaredError(expected, actual) {
-
-    // This is kind of hacky, but we want to normalize our error functions 
-    const ROT_CORRECTION = Math.PI
-    const X_CORRECTION = width / 2
-    const Y_CORRECTION = height / 2
-
-    const errX = Math.pow(expected.get([0, 2]) / X_CORRECTION - actual.get([0, 2]) / X_CORRECTION, 2)
-    const errY = Math.pow(expected.get([1, 2]) / Y_CORRECTION - actual.get([1, 2]) / Y_CORRECTION, 2)
-
-    let errRot = 0
-    errRot += Math.pow(expected.get([0, 0]) / ROT_CORRECTION - actual.get([0, 0]) / ROT_CORRECTION, 2)
-    errRot += Math.pow(expected.get([0, 1]) / ROT_CORRECTION - actual.get([0, 1]) / ROT_CORRECTION, 2)
-    errRot += Math.pow(expected.get([1, 0]) / ROT_CORRECTION - actual.get([1, 0]) / ROT_CORRECTION, 2)
-    errRot += Math.pow(expected.get([1, 1]) / ROT_CORRECTION - actual.get([1, 1]) / ROT_CORRECTION, 2)
-    errRot /= ROT_CORRECTION
-
-    return (errX + errY + errRot)
-
-}
-
-// Error function we pass into the solver
-function errFn(output) {
-
-    return getSquaredError(TARGET, output)
-
-}
-
-// get the X and Y coords from a homogeneous transformation matrix
-function getXYfromMatrix(matrix) {
-    return [matrix.get([0, 2]), matrix.get([1, 2])]
 }
 
 update()
