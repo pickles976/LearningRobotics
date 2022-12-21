@@ -1,4 +1,4 @@
-class Solver {
+class IKSolver {
 
     constructor(radii, thetas, constraints, origin) {
 
@@ -25,32 +25,32 @@ class Solver {
 
         // generate all the matrices for given thetas
         for (let i = 0; i < this.thetas.length; i++){
-            this.matrices.push(generateMatrix2D(theta, radius))
+            this.matrices.push(generateMatrix2D(this.thetas[i], this.radii[i]))
         }
 
-        this.forwardMats = []
-        this.forwardMats.push(this.origin)
+        // this.forwardMats = []
+        // this.forwardMats.push(this.origin)
 
-        // generate all the forward partial matrix products
-        // [ O, O x A, O x A x B, O x A x B x C]
-        for (let i = 1; i < this.matrices.length; i++){
-            this.forwardMats.push(math.multiply(this.forwardMats[i - 1], this.matrices[i]))
-        }
+        // // generate all the forward partial matrix products
+        // // [ O, O x A, O x A x B, O x A x B x C]
+        // for (let i = 1; i < this.matrices.length; i++){
+        //     this.forwardMats.push(math.multiply(this.forwardMats[i - 1], this.matrices[i]))
+        // }
 
-        this.backwardMats = []
-        this.backwardMats.push(this.matrices[this.matrices.length - 1])
+        // this.backwardMats = []
+        // this.backwardMats.push(this.matrices[this.matrices.length - 1])
 
-        // generate all the backwards partial matrix products
-        // [E, D x E, C x D x E] -> [C x D x E, D x E, E] 
-        for (let i = 1; i < this.matrices.length; i++){
-            this.forwardMats.push(math.multiply(this.backwardMats[i - 1], this.matrices[this.matrices.length - i - 1]))
-        }
+        // // generate all the backwards partial matrix products
+        // // [E, D x E, C x D x E] -> [C x D x E, D x E, E] 
+        // for (let i = 1; i < this.matrices.length; i++){
+        //     this.forwardMats.push(math.multiply(this.backwardMats[i - 1], this.matrices[this.matrices.length - i - 1]))
+        // }
 
-        this.backwardMats = this.backwardMats.reverse()
+        // this.backwardMats = this.backwardMats.reverse()
 
-        // this is really the forward pass error calculation
-        this.endEffector = this.forwardMats[this.forwardMats.length - 1]
-        this.loss = this.calculateLoss()
+        // // this is really the forward pass error calculation
+        // this.endEffector = this.forwardMats[this.forwardMats.length - 1]
+        // this.loss = this.calculateLoss()
 
     }
 
