@@ -46,7 +46,9 @@ class Layer {
         // f(x + h) - f(x) / h
         const dTheta = (errFn(outputDelta) - currentLoss) / step
 
-        // console.log(`dθ ${dTheta}`)
+        console.log(errFn(outputDelta))
+        console.log(currentLoss)
+        console.log(`dθ ${dTheta}`)
 
         // nudge theta based on slope
         // TODO: clamp dTheta so we dont bounce around if the learning rate/loss fn is too large
