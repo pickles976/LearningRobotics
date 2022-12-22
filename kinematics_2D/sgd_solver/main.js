@@ -48,9 +48,9 @@ ikSystem.setTarget(TARGET)
 ikSystem.update()
 
 // UNCOMMENT FOR PERFORMANCE TEST
-// let start = Date.now()
-// ikSystem.solve(TARGET, 0.00001)
-// console.log(`Elapsed time: ${(Date.now() - start)}ms`)
+let start = Date.now()
+ikSystem.solve(TARGET, 0.00001)
+console.log(`Elapsed time: ${(Date.now() - start)}ms`)
 
 function update() {
 
@@ -74,4 +74,4 @@ function update() {
 
 }
 
-update()
+// update()

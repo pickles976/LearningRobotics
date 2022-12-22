@@ -1,10 +1,13 @@
-const IDENTITY = math.matrix([
-    [1, 0, 0],
-    [0, 1, 0],
-    [0, 0, 1]
-])
-
 class IKSolver {
+
+    PENALTY = 1.25
+    ROT_CORRECTION = Math.PI
+    IDENTITY = math.matrix([
+        [1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ])
+    MAX_DLOSS = 0.25
 
     constructor(radii, thetas, constraints, origin) {
 
@@ -27,7 +30,7 @@ class IKSolver {
 
         this.learnRate = 0.5
         this.currentLearnRate = this.learnRate
-        this.decay = 0.0000005
+        this.decay = 0.00005
 
         this.momentums = []
         this.momentumRetain = 0.25
@@ -52,7 +55,7 @@ class IKSolver {
             this.matrices.push(generateMatrix2D(this.thetas[i], this.radii[i]))
         }
 
-        this.lines = getLines(this.matrices) // used to check for self-intersection
+        this.lines = getLines(this.matrices)
 
         this.forwardMats = []
         this.forwardMats.push(this.origin)
@@ -73,7 +76,7 @@ class IKSolver {
         }
 
         this.backwardMats = this.backwardMats.reverse()
-        this.backwardMats.push(IDENTITY)
+        this.backwardMats.push(this.IDENTITY)
 
         // this is really the forward pass error calculation
         this.endEffector = this.forwardMats[this.forwardMats.length - 1]
@@ -91,13 +94,20 @@ class IKSolver {
             const dMat = generateMatrix2D(dTheta, radius)
             const deltaEndEffector = math.multiply(math.multiply(this.forwardMats[i], dMat), this.backwardMats[i+2])
 
-            const dLoss = (this.calculateLoss(deltaEndEffector) - this.loss) / d
+            let dLoss = (this.calculateLoss(deltaEndEffector, i, dTheta, dMat) - this.loss) / d
             // console.log(`dLoss/dθ: ${dLoss}`)
 
-            // TODO: clamp dLoss
+            // Clamp dLoss
+            dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
 
-            this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
-            this.momentums[i] = dLoss
+
+            let newTheta = this.thetas[i] - (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            
+            if (newTheta > this.constraints[i][0] && newTheta < this.constraints[i][1]) {
+                this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+                this.momentums[i] = dLoss
+            }
+
         }
 
     }
@@ -120,7 +130,7 @@ class IKSolver {
 
         this.initializeMomentums()
 
-        while (this.iterations < 250){
+        while (this.iterations < 1000){
             if (this.loss > thresh){
                 this.update()
             }else{
@@ -129,16 +139,24 @@ class IKSolver {
             }
         }
 
-        console.log("Could not converge in 250 iterations")
+        console.log("Could not converge in 1000 iterations")
 
     }
 
     // calculate loss
-    calculateLoss(actual) {
+    calculateLoss(actual, i, dTheta, dMat) {
 
         let totalLoss = 0
 
-        totalLoss += transformLoss(actual, this.target, this.armLength, Math.PI)
+        totalLoss += transformLoss(actual, this.target, this.armLength, this.ROT_CORRECTION)
+
+        if (dMat) {
+            let newMatrices = this.matrices
+            newMatrices[i] = dMat
+            if (linesIntersect(getLines(newMatrices))) {
+                totalLoss *= this.PENALTY
+            } 
+        }
 
         return totalLoss
 
@@ -146,14 +164,10 @@ class IKSolver {
 
     render(ctx) {
 
-        let prevMat = this.matrices[0]
-
-        for (let i = 1; i < this.matrices.length; i++){
+        for (let i = 0; i < this.lines.length; i++){
     
-            let currentMat = math.multiply(prevMat, this.matrices[i])
-    
-            let [startX, startY] = getXYfromMatrix(prevMat)
-            let [endX, endY] = getXYfromMatrix(currentMat)
+            let [startX, startY] = this.lines[i][0]
+            let [endX, endY] = this.lines[i][1]
     
             ctx.strokeStyle = "#000000"
             ctx.lineWidth = 5
@@ -161,8 +175,6 @@ class IKSolver {
             ctx.moveTo(startX, startY)
             ctx.lineTo(endX, endY)
             ctx.stroke()
-    
-            prevMat = currentMat
     
         }
     }

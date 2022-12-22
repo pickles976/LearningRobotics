@@ -46,9 +46,9 @@ class Layer {
         // f(x + h) - f(x) / h
         const dTheta = (errFn(outputDelta) - currentLoss) / step
 
-        console.log(errFn(outputDelta))
-        console.log(currentLoss)
-        console.log(`dθ ${dTheta}`)
+        // console.log(errFn(outputDelta))
+        // console.log(currentLoss)
+        // console.log(`dθ ${dTheta}`)
 
         // nudge theta based on slope
         // TODO: clamp dTheta so we dont bounce around if the learning rate/loss fn is too large
@@ -57,15 +57,17 @@ class Layer {
 
     }
 
-    // Get a matrix for the given theta
-    generateMatrix(theta) {
+    generateMatrix(theta, radius) {
 
+        const cos = Math.cos(theta)
+        const sin = Math.sin(theta)
+    
         return math.matrix([
-            [Math.cos(theta), -Math.sin(theta), this.radius * Math.cos(theta)],
-            [Math.sin(theta), Math.cos(theta), this.radius * Math.sin(theta)],
+            [cos, -sin, this.radius * cos],
+            [sin,cos, this.radius * sin],
             [0, 0, 1]
         ])
-
+    
     }
 }
 
@@ -166,7 +168,7 @@ class IKSystem {
             if (this.loss > thresh) {
                 this.update()
             } else {
-                console.log('Optimal solution found')
+                console.log(`Optimal solution found after ${this.iterations} iterations!`)
                 return
             }
         }

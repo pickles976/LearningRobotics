@@ -97,9 +97,12 @@ function getXYfromMatrix(matrix) {
 
 function generateMatrix2D(theta, radius) {
 
+    const cos = Math.cos(theta)
+    const sin = Math.sin(theta)
+
     return math.matrix([
-        [Math.cos(theta), -Math.sin(theta), radius * Math.cos(theta)],
-        [Math.sin(theta), Math.cos(theta), radius * Math.sin(theta)],
+        [cos, -sin, radius * cos],
+        [sin,cos, radius * sin],
         [0, 0, 1]
     ])
 

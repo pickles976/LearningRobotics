@@ -106,7 +106,7 @@ function update() {
 
     // TARGET.set([0,2], TARGET.get([0,2]) + 1)
 
-    // requestAnimationFrame(update)
+    requestAnimationFrame(update)
 
 }
 
