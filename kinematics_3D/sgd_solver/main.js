@@ -34,7 +34,7 @@ const ORIGIN = math.matrix([
 ])
 
 
-const RADII = [100, 75, 75, 50]
+const RADII = [10, 7.5, 7.5, 5]
 const AXES = ['z', 'x', 'y', 'x']
 const THETAS = [Math.PI / 8, -Math.PI / 4, Math.PI / 6, Math.PI / 6]
 
@@ -58,6 +58,24 @@ function createGround() {
     groundGeo.rotateX(-Math.PI / 2)
     const groundMesh = new THREE.Mesh(groundGeo, groundMat)
     scene.add(groundMesh)
+}
+
+function createLink(length) {
+
+    const armMat = new THREE.MeshPhongMaterial({
+        color: 0xDDDDDD,    // red (can also use a CSS color string here)
+        flatShading: true,
+    });
+
+    const radiusTop = 0.5;  // ui: radiusTop
+    const radiusBottom = 0.75;  // ui: radiusBottom
+    const height = length;  // ui: height
+    const radialSegments = 12;  // ui: radialSegments
+    const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+    geometry.translate(0, length / 2, 0) // change transform point
+    const link = new THREE.Mesh(geometry, armMat)
+    return link
+    
 }
 
 function init() {
@@ -142,5 +160,10 @@ async function render() {
 
 init()
 createGround()
+
+let link = createLink(5)
+scene.add(link)
+
+
 
 requestAnimationFrame(render)
