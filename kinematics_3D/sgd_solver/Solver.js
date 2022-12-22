@@ -1,4 +1,4 @@
-class IKSolver {
+export class IKSolver {
 
     PENALTY = 1.25
     ROT_CORRECTION = Math.PI

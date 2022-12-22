@@ -1,4 +1,6 @@
-class IKSolver3D {
+import { IDENTITY, mat4 } from "./Geometry.js"
+
+export class IKSolver3D {
 
     constructor(axes, radii, thetas, origin) {
 
