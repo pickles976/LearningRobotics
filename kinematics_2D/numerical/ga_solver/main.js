@@ -49,11 +49,9 @@ let population = new Population(100, 0.2, THETAS, evaluate)
 function evaluate(thetas) {
 
     let totalErr = 0
-    let sumThetas = 0
 
     // check that all joints are within theta constraints
     for (let i = 0; i < thetas.length; i++ ){
-        sumThetas += thetas[i]
         totalErr += (thetas[i] > CONSTRAINTS[i][0] && thetas[i] < CONSTRAINTS[i][1]) ? 0 : PENALTY
     }
 

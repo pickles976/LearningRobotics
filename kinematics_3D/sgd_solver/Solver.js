@@ -150,13 +150,13 @@ class IKSolver {
 
         totalLoss += transformLoss(actual, this.target, this.armLength, this.ROT_CORRECTION)
 
-        if (dMat) {
-            let newMatrices = this.matrices
-            newMatrices[i] = dMat
-            if (linesIntersect(getLines(newMatrices))) {
-                totalLoss *= this.PENALTY
-            } 
-        }
+        // if (dMat) {
+        //     let newMatrices = this.matrices
+        //     newMatrices[i] = dMat
+        //     if (linesIntersect(getLines(newMatrices))) {
+        //         totalLoss *= this.PENALTY
+        //     } 
+        // }
 
         return totalLoss
 
