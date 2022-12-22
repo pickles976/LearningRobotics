@@ -53,8 +53,8 @@ function getLines(matrices) {
 
         // [ [x1, y1] , [x2, y2] ]
         const line = [
-            [prevMat.get([0,2]), prevMat.get([1,2])], 
-            [currMat.get([0,2]), currMat.get([1,2])] 
+            getXYfromMatrix(prevMat), 
+            getXYfromMatrix(currMat)
         ]
 
         lineArr.push(line)

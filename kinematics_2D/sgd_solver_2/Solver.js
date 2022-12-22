@@ -159,11 +159,8 @@ class IKSolver {
     
             let currentMat = math.multiply(prevMat, this.matrices[i])
     
-            let startX = prevMat.get([0, 2])
-            let startY = prevMat.get([1, 2])
-    
-            let endX = currentMat.get([0, 2])
-            let endY = currentMat.get([1, 2])
+            let [startX, startY] = getXYfromMatrix(prevMat)
+            let [endX, endY] = getXYfromMatrix(currentMat)
     
             ctx.strokeStyle = "#000000"
             ctx.lineWidth = 5

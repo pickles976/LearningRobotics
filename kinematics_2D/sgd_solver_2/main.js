@@ -44,13 +44,13 @@ const CONSTRAINTS = [[-Math.PI * 2, Math.PI * 2], angles, angles, angles, angles
 const PENALTY = 1000000 // penalty is so high because these configurations are NOT VALID, so the penalty needs to be huge
 
 let ikSolver = new IKSolver(RADII, THETAS, CONSTRAINTS, ORIGIN)
-// ikSolver.target = TARGET
-// ikSolver.initializeMomentums()
+ikSolver.target = TARGET
+ikSolver.initializeMomentums()
 
 // UNCOMMENT FOR PERFORMANCE TEST
-let start = Date.now()
-ikSolver.solve(TARGET, 0.00001)
-console.log(`Elapsed time: ${(Date.now() - start)}ms`)
+// let start = Date.now()
+// ikSolver.solve(TARGET, 0.00001)
+// console.log(`Elapsed time: ${(Date.now() - start)}ms`)
 
 function update() {
 
@@ -75,4 +75,4 @@ function update() {
 
 }
 
-// update()
+update()
