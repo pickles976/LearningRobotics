@@ -104,3 +104,18 @@ function generateMatrix2D(theta, radius) {
     ])
 
 }
+
+function transformLoss(actual, expected, DIST_CORRECTION, ROT_CORRECTION) { 
+
+    const errX = Math.pow((expected.get([0, 2]) - actual.get([0, 2])) / DIST_CORRECTION, 2)
+    const errY = Math.pow((expected.get([1, 2]) - actual.get([1, 2])) / DIST_CORRECTION, 2)
+
+    let errRot = 0
+    errRot += Math.pow((expected.get([0, 0]) - actual.get([0, 0])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([0, 1]) - actual.get([0, 1])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([1, 0]) - actual.get([1, 0])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([1, 1]) - actual.get([1, 1])) / ROT_CORRECTION, 2)
+    errRot /= ROT_CORRECTION
+
+    return (errX + errY + errRot)
+}

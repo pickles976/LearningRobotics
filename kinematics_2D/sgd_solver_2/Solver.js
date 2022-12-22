@@ -17,6 +17,7 @@ class IKSolver {
         this.matrices = []
         this.forwardMats = []
         this.backwardMats = []
+        this.lines = []
 
         this.endEffector = null
         this.target = null
@@ -50,6 +51,8 @@ class IKSolver {
         for (let i = 0; i < this.thetas.length; i++){
             this.matrices.push(generateMatrix2D(this.thetas[i], this.radii[i]))
         }
+
+        this.lines = getLines(this.matrices) // used to check for self-intersection
 
         this.forwardMats = []
         this.forwardMats.push(this.origin)
@@ -133,21 +136,11 @@ class IKSolver {
     // calculate loss
     calculateLoss(actual) {
 
-        const expected = this.target
-        const DIST_CORRECTION = this.armLength
-        const ROT_CORRECTION = Math.PI
+        let totalLoss = 0
 
-        const errX = Math.pow((expected.get([0, 2]) - actual.get([0, 2])) / DIST_CORRECTION, 2)
-        const errY = Math.pow((expected.get([1, 2]) - actual.get([1, 2])) / DIST_CORRECTION, 2)
-    
-        let errRot = 0
-        errRot += Math.pow((expected.get([0, 0]) - actual.get([0, 0])) / ROT_CORRECTION, 2)
-        errRot += Math.pow((expected.get([0, 1]) - actual.get([0, 1])) / ROT_CORRECTION, 2)
-        errRot += Math.pow((expected.get([1, 0]) - actual.get([1, 0])) / ROT_CORRECTION, 2)
-        errRot += Math.pow((expected.get([1, 1]) - actual.get([1, 1])) / ROT_CORRECTION, 2)
-        errRot /= ROT_CORRECTION
-    
-        return (errX + errY + errRot)
+        totalLoss += transformLoss(actual, this.target, this.armLength, Math.PI)
+
+        return totalLoss
 
     } 
 
