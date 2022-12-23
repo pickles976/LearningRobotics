@@ -1,9 +1,10 @@
-Now that I have added more constraints, I see the real issues with SGD. Genetic algorithms might be slow, but they are a lot better at jumping out of local minima (evolution moment). I think this is gonna require a lot of hyperparameter optimization.
+Need to run as a local server to access three.js as a module.
 
-Some things to optimize over:
+Run the following command from the kinematics_3D/sgd_solver directory
+```
+http-server
+```
 
-- PENALTY
-- MAX_DLOSS
-- LEARN RATE
-- MOMENTUM
-- DECAY
+http-server wont work on node 10, which comes default on Ubuntu for some reason? Use the nvm installation method listed here:
+
+https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-16-04

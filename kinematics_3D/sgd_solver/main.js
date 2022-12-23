@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
+import { TransformControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/TransformControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
 
@@ -35,7 +36,7 @@ const ORIGIN = math.matrix([
 
 
 const RADII = [10, 7.5, 7.5, 5]
-const AXES = ['z', 'x', 'y', 'x']
+const AXES = ['y', 'x', 'z', 'x']
 const THETAS = [Math.PI / 8, -Math.PI / 4, Math.PI / 6, Math.PI / 6]
 
 const ikSolver3D = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
@@ -46,7 +47,7 @@ console.log(ikSolver3D.forwardMats)
 console.log(ikSolver3D.backwardMats)
 
 
-let canvas, renderer, camera, scene, controls
+let canvas, renderer, camera, scene, orbit
 
 function createGround() {
     
@@ -78,6 +79,26 @@ function createLink(length) {
     
 }
 
+function createArm() {
+
+    let arm = []
+    arm.push(createLink(RADII[0]))
+
+    arm[0].rotateX(Math.PI / 4)
+    scene.add(arm[0])
+
+    for(let i = 1; i < RADII.length; i++) {
+        let tempLink = createLink(RADII[i])
+        tempLink.translateY(RADII[i - 1])
+        arm[i - 1].add(tempLink)
+        arm.push(tempLink)
+    }   
+
+
+    return arm
+
+}
+
 function init() {
 
     // grab canvas
@@ -103,15 +124,15 @@ function init() {
     camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
 
-    // map controls
-    controls = new MapControls(camera, canvas)
-    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
-    controls.dampingFactor = 0.05;
-    controls.screenSpacePanning = false;
-    controls.minDistance = 10;
-    controls.maxDistance = 16384;
-    controls.maxPolarAngle = (Math.PI / 2) - (Math.PI / 360)
-
+    // map orbit
+    // orbit = new MapControls(camera, canvas)
+    orbit = new MapControls(camera, canvas)
+    orbit.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+    orbit.dampingFactor = 0.05;
+    orbit.screenSpacePanning = false;
+    orbit.minDistance = 10;
+    orbit.maxDistance = 16384;
+    orbit.maxPolarAngle = (Math.PI / 2) - (Math.PI / 360)
 
     // lighting
     const color = 0xFFFFFF;
@@ -122,6 +143,9 @@ function init() {
 
     const ambient = new THREE.AmbientLight(color, 0.3);
     scene.add(ambient);
+
+    const axesHelper = new THREE.AxesHelper( 5 );
+    scene.add( axesHelper );
 
 }
 
@@ -138,8 +162,8 @@ function resizeRendererToDisplaySize(renderer) {
 
 async function render() {
 
-    // controls.update(0.1)
-    controls.update()
+    // orbit.update(0.1)
+    orbit.update()
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
@@ -161,8 +185,10 @@ async function render() {
 init()
 createGround()
 
-let link = createLink(5)
-scene.add(link)
+// let link = createLink(5)
+// scene.add(link)
+
+let arm = createArm()
 
 
 
