@@ -1,19 +1,39 @@
-import { IDENTITY, mat4 } from "./Geometry.js"
+import { IDENTITY, mat4, transformLoss } from "./Geometry.js"
 
 export class IKSolver3D {
 
+    PENALTY = 1.25
+    ROT_CORRECTION = Math.PI
+    MAX_DLOSS = 0.25
+
     constructor(axes, radii, thetas, origin) {
 
+        // physical traits
         this.axes = axes
         this.radii = radii
         this.thetas = thetas
         this.origin = origin
+        this.armLength = radii.reduce((acc, curr) => acc + curr, 0)
 
+        // matrices
         this.matrices = []
         this.forwardMats = []
         this.backwardMats = []
 
+        // output
         this.endEffector = null
+        this.target = null
+
+        // SGD vars
+        this.loss = 100.0
+        this.iterations = 0
+
+        this.learnRate = 0.5
+        this.currentLearnRate = this.learnRate
+        this.decay = 0.00005
+
+        // this.momentums = []
+        // this.momentumRetain = 0.25
 
     }
 
@@ -49,8 +69,53 @@ export class IKSolver3D {
 
         // this is really the forward pass error calculation
         this.endEffector = this.forwardMats[this.forwardMats.length - 1]
-        // this.loss = this.calculateLoss(this.endEffector)
+        this.loss = this.calculateLoss(this.endEffector)
 
+    }
+
+    updateThetas() {
+
+        const d = 0.00001
+
+        for (let i = 0; i < this.thetas.length; i++) {
+            const dTheta = this.thetas[i] + d
+            const radius = this.radii[i]
+            const dMat = mat4(dTheta, this.axes[i], radius)
+            const deltaEndEffector = math.multiply(math.multiply(this.forwardMats[i], dMat), this.backwardMats[i+2])
+
+            let dLoss = (this.calculateLoss(deltaEndEffector, i, dTheta, dMat) - this.loss) / d
+            // console.log(`dLoss/dθ: ${dLoss}`)
+
+            // Clamp dLoss
+            dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
+            
+            this.thetas[i] -= (dLoss * this.learnRate)
+
+        }
+
+    }
+
+    // calculate loss
+    calculateLoss(actual, i, dTheta, dMat) {
+
+        let totalLoss = 0
+
+        totalLoss += transformLoss(actual, this.target, this.armLength, this.ROT_CORRECTION)
+
+        return totalLoss
+
+    } 
+
+    updateParams() {
+        this.iterations += 1
+        this.currentLearnRate = this.learnRate * (1/ (1+this.decay*this.iterations))
+    }
+
+    update() {
+        this.generateMats()
+        this.updateThetas()
+        this.updateParams()
+        console.log(this.loss)
     }
 
 

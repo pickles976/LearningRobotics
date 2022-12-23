@@ -1,3 +1,5 @@
+import * as THREE from 'three'
+
 export const IDENTITY = math.matrix( [
     [1, 0, 0, 0],
     [0, 1, 0, 0],
@@ -25,7 +27,7 @@ export function mat4(theta, axis, radius) {
 
 }
 
-function rMat3D(theta, axis) {
+export function rMat3D(theta, axis) {
 
     switch(axis) {
         case 'x':
@@ -42,7 +44,7 @@ function rMat3D(theta, axis) {
 
 }
 
-function tMat3D(x, y, z) {
+export function tMat3D(x, y, z) {
     return math.matrix([
         [1, 0, 0, x],
         [0, 1, 0, y],
@@ -88,4 +90,48 @@ function rotationMatrixZ(theta) {
         [0, 0, 1, 0],
         [0, 0, 0, 1]
     ])
+}
+
+export function transformLoss(actual, expected, DIST_CORRECTION, ROT_CORRECTION) { 
+
+    const errX = Math.pow((expected.get([0, 3]) - actual.get([0, 3])) / DIST_CORRECTION, 2)
+    const errY = Math.pow((expected.get([1, 3]) - actual.get([1, 3])) / DIST_CORRECTION, 2)
+    const errZ = Math.pow((expected.get([2, 3]) - actual.get([2, 3])) / DIST_CORRECTION, 2)
+
+    let errRot = 0
+    errRot += Math.pow((expected.get([0, 0]) - actual.get([0, 0])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([0, 1]) - actual.get([0, 1])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([0, 2]) - actual.get([0, 2])) / ROT_CORRECTION, 2)
+
+    errRot += Math.pow((expected.get([1, 0]) - actual.get([1, 0])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([1, 1]) - actual.get([1, 1])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([1, 2]) - actual.get([1, 2])) / ROT_CORRECTION, 2)
+
+    errRot += Math.pow((expected.get([2, 0]) - actual.get([2, 0])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([2, 1]) - actual.get([2, 1])) / ROT_CORRECTION, 2)
+    errRot += Math.pow((expected.get([2, 2]) - actual.get([2, 2])) / ROT_CORRECTION, 2)
+
+    errRot /= ROT_CORRECTION
+
+    return (errX + errY + errZ + errRot)
+}
+
+export function mathToTHREE(in_matrix, out_matrix) {
+    let dim = in_matrix.size()
+
+    let arr = []
+
+    for (let i = 0; i < dim[0]; i++) {
+        for (let j = 0; j < dim[1]; j++) {
+            arr.push(in_matrix.get([i, j]))
+        }
+    }
+
+    let m = new THREE.Matrix4()
+    return m.fromArray(arr)
+
+}
+
+export function threeToMATH(in_matrix, out_matrix) {
+    
 }

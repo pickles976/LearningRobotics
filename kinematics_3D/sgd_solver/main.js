@@ -4,6 +4,7 @@ import { TransformControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
 import { Arm3D } from './Arm3D.js'
+import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 
 const L = 50
 
@@ -29,9 +30,20 @@ const Z_AXIS = math.matrix([
 ])
 
 const ORIGIN = math.matrix([
-    [1, 0, 0, 50],
-    [0, 1, 0, 50],
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
     [0, 0, 1, 0],
+    [0, 0, 0, 1]
+])
+
+const tRot = Math.PI / 6
+const c = Math.cos(tRot)
+const s = Math.sin(tRot)
+
+const TARGET = math.matrix([
+    [c, 0, s, 7.5],
+    [0, 1, 0, 6.5],
+    [-s, 0, c, 3],
     [0, 0, 0, 1]
 ])
 
@@ -40,15 +52,18 @@ const RADII = [10, 7.5, 7.5, 5]
 const AXES = ['y', 'x', 'z', 'x']
 const THETAS = [Math.PI / 8, -Math.PI / 4, Math.PI / 6, Math.PI / 6]
 
-const ikSolver3D = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
-ikSolver3D.generateMats()
-
-console.log(ikSolver3D.matrices)
-console.log(ikSolver3D.forwardMats)
-console.log(ikSolver3D.backwardMats)
-
-
 let canvas, renderer, camera, scene, orbit
+
+function drawMat4(matrix) {
+    const axesHelper = new THREE.AxesHelper( 5 );
+    axesHelper.translateX(7.5)
+    axesHelper.translateY(6.5)
+    axesHelper.translateZ(3)
+    axesHelper.applyMatrix4(mathToTHREE(rMat3D(tRot, 'y')))
+    axesHelper.updateMatrix()
+    console.log(axesHelper.matrix)
+    scene.add( axesHelper )
+}
 
 function createGround() {
     
@@ -127,6 +142,8 @@ async function render() {
 
     // orbit.update(0.1)
     orbit.update()
+    solver.update()
+    arm.updateThetas(solver.thetas)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
@@ -143,13 +160,15 @@ async function render() {
 
     renderer.render(scene, camera);
     requestAnimationFrame(render)
+
 }
 
 init()
 createGround()
+drawMat4(TARGET)
 
 let arm = new Arm3D(RADII, AXES, THETAS, scene)
-
-
+let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
+solver.target = TARGET
 
 requestAnimationFrame(render)
