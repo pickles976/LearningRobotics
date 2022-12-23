@@ -46,7 +46,7 @@ const PENALTY = 1000000 // penalty is so high because these configurations are N
 
 let ikSolver = new IKSolver(RADII, THETAS, CONSTRAINTS, ORIGIN)
 ikSolver.target = TARGET
-ikSolver.initializeMomentums()s
+ikSolver.initializeMomentums()
 
 // UNCOMMENT FOR PERFORMANCE TEST
 // let start = Date.now()
