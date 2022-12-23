@@ -50,7 +50,7 @@ const TARGET = math.matrix([
 
 const RADII = [10, 7.5, 7.5, 5]
 const AXES = ['y', 'x', 'z', 'x']
-const THETAS = [Math.PI / 8, -Math.PI / 4, Math.PI / 6, Math.PI / 6]
+const THETAS = [0, 0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
 
@@ -98,7 +98,7 @@ function init() {
 
     // camera
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 5, 2000000 );
-    camera.position.set(10, 10, 10);
+    camera.position.set(30, 30, 30);
     camera.up.set(0, 1, 0);
     camera.lookAt(0, 0, 0);
 
@@ -170,5 +170,6 @@ drawMat4(TARGET)
 let arm = new Arm3D(RADII, AXES, THETAS, scene)
 let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
 solver.target = TARGET
+solver.initializeMomentums()
 
 requestAnimationFrame(render)

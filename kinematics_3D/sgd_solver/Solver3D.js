@@ -32,9 +32,17 @@ export class IKSolver3D {
         this.currentLearnRate = this.learnRate
         this.decay = 0.00005
 
-        // this.momentums = []
-        // this.momentumRetain = 0.25
+        this.momentums = []
+        this.momentumRetain = 0.25
 
+    }
+
+    initializeMomentums() {
+        this.momentums = []
+
+        this.thetas.forEach(theta => {
+            this.momentums.push(0.0)
+        })
     }
 
     generateMats() {
@@ -88,8 +96,9 @@ export class IKSolver3D {
 
             // Clamp dLoss
             dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
-            
-            this.thetas[i] -= (dLoss * this.learnRate)
+
+            this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            this.momentums[i] = dLoss
 
         }
 
