@@ -3,6 +3,7 @@ import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/contro
 import { TransformControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/TransformControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
+import { Arm3D } from './Arm3D.js'
 
 const L = 50
 
@@ -59,44 +60,6 @@ function createGround() {
     groundGeo.rotateX(-Math.PI / 2)
     const groundMesh = new THREE.Mesh(groundGeo, groundMat)
     scene.add(groundMesh)
-}
-
-function createLink(length) {
-
-    const armMat = new THREE.MeshPhongMaterial({
-        color: 0xDDDDDD,    // red (can also use a CSS color string here)
-        flatShading: true,
-    });
-
-    const radiusTop = 0.5;  // ui: radiusTop
-    const radiusBottom = 0.75;  // ui: radiusBottom
-    const height = length;  // ui: height
-    const radialSegments = 12;  // ui: radialSegments
-    const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
-    geometry.translate(0, length / 2, 0) // change transform point
-    const link = new THREE.Mesh(geometry, armMat)
-    return link
-    
-}
-
-function createArm() {
-
-    let arm = []
-    arm.push(createLink(RADII[0]))
-
-    arm[0].rotateX(Math.PI / 4)
-    scene.add(arm[0])
-
-    for(let i = 1; i < RADII.length; i++) {
-        let tempLink = createLink(RADII[i])
-        tempLink.translateY(RADII[i - 1])
-        arm[i - 1].add(tempLink)
-        arm.push(tempLink)
-    }   
-
-
-    return arm
-
 }
 
 function init() {
@@ -185,10 +148,7 @@ async function render() {
 init()
 createGround()
 
-// let link = createLink(5)
-// scene.add(link)
-
-let arm = createArm()
+let arm = new Arm3D(RADII, AXES, THETAS, scene)
 
 
 
