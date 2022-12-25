@@ -124,7 +124,7 @@ export class IKSolver3D {
         this.generateMats()
         this.updateThetas()
         this.updateParams()
-        console.log(this.loss)
+        console.log(`Loss: ${this.loss}`)
     }
 
 

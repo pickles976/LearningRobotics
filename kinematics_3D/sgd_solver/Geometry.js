@@ -99,24 +99,24 @@ export function transformLoss(actual, expected, DIST_CORRECTION, ROT_CORRECTION)
     const errZ = Math.pow((expected.get([2, 3]) - actual.get([2, 3])) / DIST_CORRECTION, 2)
 
     let errRot = 0
-    errRot += Math.pow((expected.get([0, 0]) - actual.get([0, 0])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([0, 1]) - actual.get([0, 1])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([0, 2]) - actual.get([0, 2])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([0, 0]) - actual.get([0, 0])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([0, 1]) - actual.get([0, 1])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([0, 2]) - actual.get([0, 2])) / ROT_CORRECTION, 2)
 
-    errRot += Math.pow((expected.get([1, 0]) - actual.get([1, 0])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([1, 1]) - actual.get([1, 1])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([1, 2]) - actual.get([1, 2])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([1, 0]) - actual.get([1, 0])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([1, 1]) - actual.get([1, 1])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([1, 2]) - actual.get([1, 2])) / ROT_CORRECTION, 2)
 
-    errRot += Math.pow((expected.get([2, 0]) - actual.get([2, 0])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([2, 1]) - actual.get([2, 1])) / ROT_CORRECTION, 2)
-    errRot += Math.pow((expected.get([2, 2]) - actual.get([2, 2])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([2, 0]) - actual.get([2, 0])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([2, 1]) - actual.get([2, 1])) / ROT_CORRECTION, 2)
+    // errRot += Math.pow((expected.get([2, 2]) - actual.get([2, 2])) / ROT_CORRECTION, 2)
 
-    errRot /= ROT_CORRECTION
+    // errRot /= ROT_CORRECTION
 
     return (errX + errY + errZ + errRot)
 }
 
-export function mathToTHREE(in_matrix, out_matrix) {
+export function mathToTHREE(in_matrix) {
     let dim = in_matrix.size()
 
     let arr = []
@@ -132,6 +132,6 @@ export function mathToTHREE(in_matrix, out_matrix) {
 
 }
 
-export function threeToMATH(in_matrix, out_matrix) {
+export function threeToMATH(in_matrix) {
     
 }

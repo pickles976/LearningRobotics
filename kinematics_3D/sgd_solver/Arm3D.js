@@ -29,7 +29,8 @@ export class Arm3D {
         const height = length;  // ui: height
         const radialSegments = 12;  // ui: radialSegments
         const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
-        geometry.translate(0, length / 2, 0) // change transform point to the bottom of the link
+        geometry.rotateX(Math.PI / 2)
+        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
         const link = new THREE.Mesh(geometry, armMat)
         return link
         
@@ -43,13 +44,13 @@ export class Arm3D {
     
         for(let i = 1; i < radii.length; i++) {
             let tempLink = this.createLink(radii[i])
-            tempLink.translateY(radii[i - 1]) // put the bottom of the next link at the top of the previous link
+            tempLink.translateZ(radii[i - 1]) // put the bottom of the next link at the top of the previous link
             arm[i - 1].add(tempLink)
             arm.push(tempLink)
         } 
 
         const axesHelper = new THREE.AxesHelper( 3 );
-        axesHelper.translateY(radii[radii.length - 1])
+        axesHelper.translateZ(radii[radii.length - 1])
         arm[arm.length - 1 ].add( axesHelper );
     
         return arm

@@ -36,33 +36,39 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const tRot = Math.PI / 6
+const tRot = 0
 const c = Math.cos(tRot)
 const s = Math.sin(tRot)
+const x = 5
+const y = 5
+const z = 5
 
 const TARGET = math.matrix([
-    [c, 0, s, 7.5],
-    [0, 1, 0, 6.5],
-    [-s, 0, c, 3],
+    [1, 0, 0, x],
+    [0, 1, 0, y],
+    [0, 0, 1, z],
     [0, 0, 0, 1]
 ])
 
 
-const RADII = [10, 7.5, 7.5, 5]
-const AXES = ['y', 'x', 'z', 'x']
-const THETAS = [0, 0, 0, 0]
+const RADII = [10, 7.5, 7.5, 7.5, 5, 5]
+const AXES = ['z', 'y', 'x', 'z', 'y', 'x']
+const THETAS = [0, 0, 0, 0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
 
 function drawMat4(matrix) {
+    const root = new THREE.Object3D();
+    root.translateX(x)
+    root.translateY(y)
+    root.translateZ(z)
+
     const axesHelper = new THREE.AxesHelper( 5 );
-    axesHelper.translateX(7.5)
-    axesHelper.translateY(6.5)
-    axesHelper.translateZ(3)
-    axesHelper.applyMatrix4(mathToTHREE(rMat3D(tRot, 'y')))
+    axesHelper.applyMatrix4(mathToTHREE(matrix))
     axesHelper.updateMatrix()
-    console.log(axesHelper.matrix)
-    scene.add( axesHelper )
+
+    root.add(axesHelper)
+    scene.add( root )
 }
 
 function createGround() {
@@ -72,7 +78,6 @@ function createGround() {
         flatShading: true,
     });
     const groundGeo = new THREE.PlaneGeometry(64, 64, 4, 4)
-    groundGeo.rotateX(-Math.PI / 2)
     const groundMesh = new THREE.Mesh(groundGeo, groundMat)
     scene.add(groundMesh)
 }
@@ -99,7 +104,7 @@ function init() {
     // camera
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 5, 2000000 );
     camera.position.set(30, 30, 30);
-    camera.up.set(0, 1, 0);
+    camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
     // map orbit
@@ -144,6 +149,8 @@ async function render() {
     orbit.update()
     solver.update()
     arm.updateThetas(solver.thetas)
+    console.log(solver.endEffector)
+    console.log(solver.target)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
