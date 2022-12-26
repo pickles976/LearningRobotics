@@ -127,5 +127,9 @@ export class IKSolver3D {
         console.log(`Loss: ${this.loss}`)
     }
 
+    getJoints() {
+        return this.forwardMats.filter((mat, i) => i > 0)
+    }
+
 
 }

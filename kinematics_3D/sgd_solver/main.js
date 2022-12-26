@@ -5,6 +5,7 @@ import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.m
 import { IKSolver3D } from './Solver3D.js'
 import { Arm3D } from './Arm3D.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
+import { ArmViz } from './ArmViz.js'
 
 const L = 50
 
@@ -148,9 +149,9 @@ async function render() {
     // orbit.update(0.1)
     orbit.update()
     solver.update()
-    arm.updateThetas(solver.thetas)
-    console.log(solver.endEffector)
-    console.log(solver.target)
+    arm.updateMatrices(solver.getJoints())
+    // console.log(solver.endEffector)
+    // console.log(solver.target)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
@@ -174,7 +175,8 @@ init()
 createGround()
 drawMat4(TARGET)
 
-let arm = new Arm3D(RADII, AXES, THETAS, scene)
+// let arm = new Arm3D(RADII, AXES, THETAS, scene)
+let arm = new ArmViz(RADII, AXES, THETAS, scene)
 let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
 solver.target = TARGET
 solver.initializeMomentums()
