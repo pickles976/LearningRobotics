@@ -128,7 +128,7 @@ export class IKSolver3D {
     }
 
     getJoints() {
-        return this.forwardMats.filter((mat, i) => i > 0)
+        return this.matrices.filter((mat, i) => i > 0)
     }
 
 

@@ -32,8 +32,29 @@ export class ArmViz {
         const radialSegments = 12;  // ui: radialSegments
         const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
         geometry.rotateX(Math.PI / 2)
+        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
+        const link = new THREE.Mesh(geometry, armMat)
+        // link.position.z = length / 2
+        return link
+
+    }
+
+    createBase(length) {
+
+        const armMat = new THREE.MeshPhongMaterial({
+            color: 0xDDDDDD,
+            flatShading: true,
+        });
+    
+        const radiusTop = 0.5;  // ui: radiusTop
+        const radiusBottom = 0.75;  // ui: radiusBottom
+        const height = length;  // ui: height
+        const radialSegments = 12;  // ui: radialSegments
+        const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+        geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
         const link = new THREE.Mesh(geometry, armMat)
+        // link.position.z = length / 2
         return link
 
     }
@@ -41,14 +62,19 @@ export class ArmViz {
 
     createArm(radii) {
 
-        let arm = [] 
+        let arm = []
+        let axesHelper = new THREE.AxesHelper(3) 
+        this.scene.add(axesHelper)
+        axesHelper.add(this.createBase(radii[0]))
+        arm.push(axesHelper)
     
-        for(let i = 0; i < radii.length; i++) {
+        for(let i = 1; i < radii.length; i++) {
             const axesHelper = new THREE.AxesHelper( 3 );
+            // axesHelper.add(this.createLink(radii[i]))
+            // this.scene.add(axesHelper)
+            arm[i-1].add(this.createLink(radii[i]))
+            arm[i-1].add(axesHelper)
             arm.push(axesHelper)
-            axesHelper.add(this.createLink(radii[i]))
-            axesHelper.matrixAutoUpdate = false
-            this.scene.add(axesHelper)
         } 
     
         return arm
@@ -59,6 +85,10 @@ export class ArmViz {
         for (let i = 0; i < this.arm.length; i++) {
             // set arm transform equal to matrix
             let tempMat = mathToTHREE(matrices[i])
+
+            this.arm[i].setRotationFromMatrix(tempMat)
+
+            this.arm[i].updateMatrix()
             
             let x = tempMat.elements[3]
             let y = tempMat.elements[7]
@@ -68,7 +98,6 @@ export class ArmViz {
              
             this.arm[i].updateMatrix()
 
-            this.arm[i].setRotationFromMatrix(tempMat)
         }
     }
     

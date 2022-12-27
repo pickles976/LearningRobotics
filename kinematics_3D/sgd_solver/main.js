@@ -52,9 +52,9 @@ const TARGET = math.matrix([
 ])
 
 
-const RADII = [10, 7.5, 7.5, 7.5, 5, 5]
-const AXES = ['z', 'y', 'x', 'z', 'y', 'x']
-const THETAS = [0, 0, 0, 0, 0, 0]
+const RADII = [1, 7.5, 7.5]
+const AXES = ['z', 'y', 'y']
+const THETAS = [0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
 
@@ -65,7 +65,7 @@ function drawMat4(matrix) {
     root.translateZ(z)
 
     const axesHelper = new THREE.AxesHelper( 5 );
-    axesHelper.applyMatrix4(mathToTHREE(matrix))
+    axesHelper.setRotationFromMatrix(mathToTHREE(matrix))
     axesHelper.updateMatrix()
 
     root.add(axesHelper)
@@ -150,8 +150,8 @@ async function render() {
     orbit.update()
     solver.update()
     arm.updateMatrices(solver.getJoints())
-    // console.log(solver.endEffector)
-    // console.log(solver.target)
+    console.log(solver.endEffector)
+    console.log(solver.target)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
