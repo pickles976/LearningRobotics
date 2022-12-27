@@ -56,10 +56,16 @@ export class Arm3D {
 
         let arm = []
 
+        let root = new THREE.Object3D()
+        // TODO: WHY DOES THIS WORK??? WE SHOULDNT HAVE THIS ISSUE
+        root.scale.set(-1, -1, -1)
+        root.rotateY(Math.PI)
+        this.scene.add(root)
+
         let axesHelper = new THREE.AxesHelper(3)
         axesHelper.add(this.createBase(radii[0]))
+        root.add(axesHelper)
         arm.push(axesHelper)
-        this.scene.add(axesHelper)
     
         for(let i = 1; i < radii.length; i++) {
             const axesHelper = new THREE.AxesHelper( 3 );

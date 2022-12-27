@@ -36,24 +36,19 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const tRot = Math.PI / 6
-const c = Math.cos(tRot)
-const s = Math.sin(tRot)
+const xRot = 0
+const yRot = 0
+const zRot = Math.PI / 4
 const x = 7
 const y = 6
 const z = 5
 
-const TARGET = math.matrix([
-    [c, -s, 0, x],
-    [s, c, 0, y],
-    [0, 0, 1, z],
-    [0, 0, 0, 1]
-])
+const TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
 
-const RADII = [1, 5, 5, 5, 2]
-const AXES = ['z', 'x', 'x', 'x', 'z']
-const THETAS = [0, 0, 0, 0, 0]
+const RADII = [1, 4, 4, 4, 4, 2, 2]
+const AXES = ['z', 'x', 'x', 'x', 'x', 'y', 'z']
+const THETAS = [0, 0, 0, 0, 0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
 
@@ -103,7 +98,7 @@ function init() {
 
     // camera
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 5, 2000000 );
-    camera.position.set(30, 30, 30);
+    camera.position.set(15, 15, 15);
     camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
