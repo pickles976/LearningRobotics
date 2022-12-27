@@ -3,9 +3,8 @@ import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/contro
 import { TransformControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/TransformControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
-import { Arm3D } from './Arm3D.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
-import { ArmViz } from './ArmViz.js'
+import { Arm3D } from './Arm3D.js'
 
 const L = 50
 
@@ -37,24 +36,24 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const tRot = 0
+const tRot = Math.PI / 6
 const c = Math.cos(tRot)
 const s = Math.sin(tRot)
-const x = 5
-const y = 5
+const x = 7
+const y = 6
 const z = 5
 
 const TARGET = math.matrix([
-    [1, 0, 0, x],
-    [0, 1, 0, y],
+    [c, -s, 0, x],
+    [s, c, 0, y],
     [0, 0, 1, z],
     [0, 0, 0, 1]
 ])
 
 
-const RADII = [1, 7.5, 7.5]
-const AXES = ['z', 'y', 'y']
-const THETAS = [0, 0, 0]
+const RADII = [1, 5, 5, 5, 2]
+const AXES = ['z', 'x', 'x', 'x', 'z']
+const THETAS = [0, 0, 0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
 
@@ -150,8 +149,9 @@ async function render() {
     orbit.update()
     solver.update()
     arm.updateMatrices(solver.getJoints())
-    console.log(solver.endEffector)
-    console.log(solver.target)
+    // console.log(solver.endEffector)
+    // console.log(solver.target)
+    console.log(solver.forwardMats)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
@@ -175,8 +175,7 @@ init()
 createGround()
 drawMat4(TARGET)
 
-// let arm = new Arm3D(RADII, AXES, THETAS, scene)
-let arm = new ArmViz(RADII, AXES, THETAS, scene)
+let arm = new Arm3D(RADII, AXES, scene)
 let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
 solver.target = TARGET
 solver.initializeMomentums()

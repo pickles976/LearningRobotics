@@ -1,23 +1,38 @@
 import * as THREE from 'three'
+import { mathToTHREE } from './Geometry.js'
 
 export class Arm3D {
 
-    X = new THREE.Vector3(1, 0, 0)
-    Y = new THREE.Vector3(0, 1, 0)
-    Z = new THREE.Vector3(0, 0, 1)
-
-    constructor(linkLengths, axes, thetas, scene) {
+    constructor(linkLengths, axes, scene) {
 
         this.scene = scene
         this.linkLengths = linkLengths
         this.axes = axes
-        this.thetas = thetas
-        this.arm = this.createArm(linkLengths)
-        this.updateThetas(thetas)
+
+        this.arm = this.createArm(this.linkLengths)
 
     }
 
     createLink(length) {
+
+        const armMat = new THREE.MeshPhongMaterial({
+            color: 0xDDDDDD,
+            flatShading: true,
+        });
+    
+        const radiusTop = 0.4;  // ui: radiusTop
+        const radiusBottom = 0.6;  // ui: radiusBottom
+        const height = length;  // ui: height
+        const radialSegments = 12;  // ui: radialSegments
+        const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+        geometry.rotateX(Math.PI / 2)
+        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
+        const link = new THREE.Mesh(geometry, armMat)
+        return link
+
+    }
+
+    createBase(length) {
 
         const armMat = new THREE.MeshPhongMaterial({
             color: 0xDDDDDD,
@@ -30,59 +45,54 @@ export class Arm3D {
         const radialSegments = 12;  // ui: radialSegments
         const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
         geometry.rotateX(Math.PI / 2)
-        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
+        geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
         const link = new THREE.Mesh(geometry, armMat)
         return link
-        
+
     }
+
 
     createArm(radii) {
 
-        let arm = [] 
-        arm.push(this.createLink(radii[0]))
-        this.scene.add(arm[0])
+        let arm = []
+
+        let axesHelper = new THREE.AxesHelper(3)
+        axesHelper.add(this.createBase(radii[0]))
+        arm.push(axesHelper)
+        this.scene.add(axesHelper)
     
         for(let i = 1; i < radii.length; i++) {
-            let tempLink = this.createLink(radii[i])
-            tempLink.translateZ(radii[i - 1]) // put the bottom of the next link at the top of the previous link
-            arm[i - 1].add(tempLink)
-            arm.push(tempLink)
+            const axesHelper = new THREE.AxesHelper( 3 );
+            // axesHelper.add(this.createLink(radii[i]))
+            // this.scene.add(axesHelper)
+            arm[i-1].add(this.createLink(radii[i]))
+            arm[i-1].add(axesHelper)
+            arm.push(axesHelper)
         } 
-
-        const axesHelper = new THREE.AxesHelper( 3 );
-        axesHelper.translateZ(radii[radii.length - 1])
-        arm[arm.length - 1 ].add( axesHelper );
     
         return arm
     }
 
-    updateThetas(thetas) {
-        this.thetas = thetas
+    updateMatrices(matrices) {
 
         for (let i = 0; i < this.arm.length; i++) {
-            this.rotateOnAxis(this.arm[i], this.axes[i], this.thetas[i])
+
+            // set arm transform equal to matrix
+            let tempMat = mathToTHREE(matrices[i])
+
+            this.arm[i].setRotationFromMatrix(tempMat)
+
+            this.arm[i].updateMatrix()
+            
+            let x = tempMat.elements[3]
+            let y = tempMat.elements[7]
+            let z = tempMat.elements[11]
+
+            this.arm[i].position.set(x, y, z)
+             
+            this.arm[i].updateMatrix()
+
         }
-    }
-
-    rotateOnAxis(object, axis, theta) {
-
-        let rotAx = null
-
-        switch (axis) {
-            case 'x':
-                rotAx = this.X
-                break
-            case 'y':
-                rotAx = this.Y
-                break
-            case 'z':
-                rotAx = this.Z
-                break
-            default:
-                break
-        }
-
-        object.setRotationFromAxisAngle(rotAx, theta)
     }
     
 
