@@ -4,6 +4,7 @@ import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.m
 import { IKSolver3D } from './Solver3D.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
+import { ArmJson } from './ArmJson.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -12,20 +13,20 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const xRot = Math.PI / 2
-const yRot = -Math.PI / 3
-const zRot = Math.PI / 4
-const x = -7.32
-const y = 6.45
-const z = 4.5
+const xRot = 0
+const yRot = 0
+const zRot = 0
+const x = 5
+const y = 5
+const z = 7
 
 let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
-const RADII = [1, 4, 4, 4, 4, 2, 2]
-const AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
-const THETAS = [0, 0, 0, 0, 0, 0, 0]
+let RADII = [1, 4, 4, 4, 4, 2, 2]
+let AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
+let THETAS = [0, 0, 0, 0, 0, 0, 0]
 
-let canvas, renderer, camera, scene, orbit, gui
+let canvas, renderer, camera, scene, orbit, gui, armjson, editor
 
 function drawTarget(matrix) {
 
@@ -77,7 +78,19 @@ function updateTarget(controls) {
 
 }
 
-function initGUI() {
+function updateArmJSON() {
+
+    loadArmFromJSON(editor.get())
+
+    arm.arm.forEach((element) => scene.remove(element))
+    arm = new Arm3D(RADII, AXES, scene)
+    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
+    solver.target = TARGET
+    solver.initializeMomentums()
+
+}
+
+function initTargetGUI() {
 
     gui = new GUI({ width: window.innerWidth / 3, })
 
@@ -91,14 +104,35 @@ function initGUI() {
         zRot
     };
 
-    gui.add( controls, 'x', -10, 10).onChange((value) => updateTarget(controls))
-    gui.add( controls, 'y', -10, 10).onChange(() => updateTarget(controls))
-    gui.add( controls, 'z', -10, 10).onChange(() => updateTarget(controls))
+    gui.add( controls, 'x', -15, 15).onChange((value) => updateTarget(controls))
+    gui.add( controls, 'y', -15, 15).onChange(() => updateTarget(controls))
+    gui.add( controls, 'z', 0, 15).onChange(() => updateTarget(controls))
     gui.add( controls, 'xRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
     gui.add( controls, 'yRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
     gui.add( controls, 'zRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
     gui.open();
-};
+}
+
+function initArmGUI() {
+
+    // create the editor
+    const container = document.getElementById("jsoneditor")
+    const options = { onChange: updateArmJSON }
+    editor = new JSONEditor(container, options)
+
+    editor.set(ArmJson)
+
+    // get json
+    armjson = editor.get()
+
+    loadArmFromJSON(armjson)
+}
+
+function loadArmFromJSON(json) {
+    RADII = json.arm.map((element) => element.link.length)
+    AXES = json.arm.map((element) => element.joint.axis)
+    THETAS = json.arm.map((element) => 0)
+}
 
 function createGround() {
     
@@ -203,7 +237,8 @@ async function render() {
 }
 
 init()
-initGUI()
+initTargetGUI()
+initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
