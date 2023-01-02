@@ -1,33 +1,9 @@
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
-import { TransformControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/TransformControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
-
-const L = 50
-
-const X_AXIS = math.matrix([
-    [1, 0, 0, L],
-    [0, 1, 0, 0],
-    [0, 0, 1, 0],
-    [0, 0, 0, 1]
-])
-
-const Y_AXIS = math.matrix([
-    [1, 0, 0, 0],
-    [0, 1, 0, L],
-    [0, 0, 1, 0],
-    [0, 0, 0, 1]
-])
-
-const Z_AXIS = math.matrix([
-    [1, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 1, L],
-    [0, 0, 0, 1]
-])
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -43,27 +19,86 @@ const x = -7.32
 const y = 6.45
 const z = 4.5
 
-const TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
+let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
 const RADII = [1, 4, 4, 4, 4, 2, 2]
 const AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
 const THETAS = [0, 0, 0, 0, 0, 0, 0]
 
-let canvas, renderer, camera, scene, orbit
+let canvas, renderer, camera, scene, orbit, gui
 
-function drawMat4(matrix) {
+function drawTarget(matrix) {
+
     const root = new THREE.Object3D();
-    root.translateX(x)
-    root.translateY(y)
-    root.translateZ(z)
 
-    const axesHelper = new THREE.AxesHelper( 5 );
-    axesHelper.setRotationFromMatrix(mathToTHREE(matrix))
-    axesHelper.updateMatrix()
+    let x = matrix.get([0, 3])
+    let y = matrix.get([1, 3])
+    let z = matrix.get([2, 3])
 
+    // Draw the orientation
+    const axesHelper = new THREE.AxesHelper(5)
+    axesHelper.applyMatrix4(mathToTHREE(matrix))
     root.add(axesHelper)
+
+    // Draw the lines
+    const lineMat = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 5.0 } );
+    const points = []
+    points.push(new THREE.Vector3(0, 0, 0))
+    points.push(new THREE.Vector3(x, 0, 0))
+    points.push(new THREE.Vector3(x, y, 0))
+    points.push(new THREE.Vector3(x, y, z))
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    const line = new THREE.Line( geometry, lineMat );
+    line.position.set(0, 0, 0.002)
+    root.add(line)
+
     scene.add( root )
+
+    return root
+
+
 }
+
+function updateTarget(controls) {
+
+    let x = controls.x
+    let y = controls.y
+    let z = controls.z
+    let xRot = controls.xRot
+    let yRot = controls.yRot
+    let zRot = controls.zRot
+
+    TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
+
+    scene.remove(target)
+    target = drawTarget(TARGET)
+    solver.target = TARGET
+    solver.resetParams()
+
+}
+
+function initGUI() {
+
+    gui = new GUI({ width: window.innerWidth / 3, })
+
+    let controls = 
+    {   
+        x,
+        y,
+        z,
+        xRot, 
+        yRot, 
+        zRot
+    };
+
+    gui.add( controls, 'x', -10, 10).onChange((value) => updateTarget(controls))
+    gui.add( controls, 'y', -10, 10).onChange(() => updateTarget(controls))
+    gui.add( controls, 'z', -10, 10).onChange(() => updateTarget(controls))
+    gui.add( controls, 'xRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    gui.add( controls, 'yRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    gui.add( controls, 'zRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    gui.open();
+};
 
 function createGround() {
     
@@ -102,7 +137,6 @@ function init() {
     camera.lookAt(0, 0, 0);
 
     // map orbit
-    // orbit = new MapControls(camera, canvas)
     orbit = new MapControls(camera, canvas)
     orbit.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     orbit.dampingFactor = 0.05;
@@ -123,6 +157,13 @@ function init() {
 
     const axesHelper = new THREE.AxesHelper( 5 );
     scene.add( axesHelper );
+
+    // Grid Helper
+    const size = 64
+    const gridHelper = new THREE.GridHelper( size, size, 0x444444, 0x999999);
+    gridHelper.rotateX(Math.PI / 2)
+    gridHelper.position.set(0, 0, 0.001)
+    scene.add( gridHelper );
 
 }
 
@@ -162,11 +203,12 @@ async function render() {
 }
 
 init()
+initGUI()
 createGround()
-drawMat4(TARGET)
 
 let arm = new Arm3D(RADII, AXES, scene)
 let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
+let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initializeMomentums()
 

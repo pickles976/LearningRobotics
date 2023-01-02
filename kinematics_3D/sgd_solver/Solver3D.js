@@ -120,6 +120,12 @@ export class IKSolver3D {
         this.currentLearnRate = this.learnRate * (1/ (1+this.decay*this.iterations))
     }
 
+    resetParams() {
+        this.iterations = 0
+        this.currentLearnRate = this.learnRate
+        this.initializeMomentums()
+    }
+
     update() {
         this.generateMats()
         this.updateThetas()
