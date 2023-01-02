@@ -1,6 +1,12 @@
 import * as THREE from 'three'
 import { mathToTHREE } from './Geometry.js'
 
+const COLORS = {
+    'x' : 0xFFAAAA,
+    'y' : 0xAAFFAA,
+    'z' : 0xAAAAFF
+}
+
 export class Arm3D {
 
     constructor(linkLengths, axes, scene) {
@@ -9,15 +15,15 @@ export class Arm3D {
         this.linkLengths = linkLengths
         this.axes = axes
 
-        this.arm = this.createArm(this.linkLengths)
+        this.arm = this.createArm(this.linkLengths, this.axes)
 
     }
 
     // Create a mesh for a robotic arm Link
-    createLink(length) {
+    createLink(length, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
-            color: 0xDDDDDD,
+            color: COLORS[axis],
             flatShading: true,
         });
     
@@ -34,10 +40,10 @@ export class Arm3D {
     }
 
     // Create a mesh for a robotic arm Base
-    createBase(length) {
+    createBase(length, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
-            color: 0xDDDDDD,
+            color: COLORS[axis],
             flatShading: true,
         });
     
@@ -54,19 +60,19 @@ export class Arm3D {
     }
 
 
-    createArm(radii) {
+    createArm(radii, axes) {
 
         let arm = []
 
         // create base
         let axesHelper = new THREE.AxesHelper(3)
-        axesHelper.add(this.createBase(radii[0]))
+        axesHelper.add(this.createBase(radii[0], axes[0]))
         arm.push(axesHelper)
         this.scene.add(axesHelper)
     
         // create arm links/joints
         for(let i = 1; i < radii.length; i++) {
-            arm[i-1].add(this.createLink(radii[i]))
+            arm[i-1].add(this.createLink(radii[i], axes[i]))
 
             const axesHelper = new THREE.AxesHelper( 3 );
             this.scene.add(axesHelper)

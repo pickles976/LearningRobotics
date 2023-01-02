@@ -86,7 +86,7 @@ function updateArmJSON() {
     arm = new Arm3D(RADII, AXES, scene)
     solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
     solver.target = TARGET
-    solver.initializeMomentums()
+    solver.resetParams()
 
 }
 
@@ -189,7 +189,8 @@ function init() {
     const ambient = new THREE.AmbientLight(color, 0.3);
     scene.add(ambient);
 
-    const axesHelper = new THREE.AxesHelper( 5 );
+    const axesHelper = new THREE.AxesHelper( 10 );
+    axesHelper.position.set(0, 0, 0.003)
     scene.add( axesHelper );
 
     // Grid Helper
