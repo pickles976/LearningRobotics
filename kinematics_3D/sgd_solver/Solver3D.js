@@ -30,7 +30,7 @@ export class IKSolver3D {
 
         this.learnRate = 0.5
         this.currentLearnRate = this.learnRate
-        this.decay = 0.00005
+        this.decay = 0.000005
 
         this.momentums = []
         this.momentumRetain = 0.25

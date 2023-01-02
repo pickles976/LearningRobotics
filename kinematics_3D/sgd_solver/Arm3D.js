@@ -13,6 +13,7 @@ export class Arm3D {
 
     }
 
+    // Create a mesh for a robotic arm Link
     createLink(length) {
 
         const armMat = new THREE.MeshPhongMaterial({
@@ -32,6 +33,7 @@ export class Arm3D {
 
     }
 
+    // Create a mesh for a robotic arm Base
     createBase(length) {
 
         const armMat = new THREE.MeshPhongMaterial({
@@ -45,7 +47,7 @@ export class Arm3D {
         const radialSegments = 12;  // ui: radialSegments
         const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
         geometry.rotateX(Math.PI / 2)
-        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
+        geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
         const link = new THREE.Mesh(geometry, armMat)
         return link
 
@@ -56,12 +58,13 @@ export class Arm3D {
 
         let arm = []
 
-        this.scene.add(this.createBase(radii[0]))
-
+        // create base
         let axesHelper = new THREE.AxesHelper(3)
+        axesHelper.add(this.createBase(radii[0]))
         arm.push(axesHelper)
         this.scene.add(axesHelper)
     
+        // create arm links/joints
         for(let i = 1; i < radii.length; i++) {
             arm[i-1].add(this.createLink(radii[i]))
 
@@ -73,6 +76,7 @@ export class Arm3D {
         return arm
     }
 
+    // update arm from transform matrices
     updateMatrices(matrices) {
 
         for (let i = 0; i < this.arm.length; i++) {

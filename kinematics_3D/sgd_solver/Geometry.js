@@ -116,6 +116,11 @@ export function transformLoss(actual, expected, DIST_CORRECTION, ROT_CORRECTION)
     return (errX + errY + errZ + errRot)
 }
 
+/**
+ * Converts math.js Matrix4 to THREE.js Matrix4
+ * @param {math.matrix} in_matrix 
+ * @returns {THREE.Matrix4}
+ */
 export function mathToTHREE(in_matrix) {
     let dim = in_matrix.size()
 
@@ -130,8 +135,4 @@ export function mathToTHREE(in_matrix) {
     let m = new THREE.Matrix4()
     return m.set(...arr)
 
-}
-
-export function threeToMATH(in_matrix) {
-    
 }

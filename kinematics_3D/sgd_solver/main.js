@@ -36,15 +36,14 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const xRot = -Math.PI / 2
+const xRot = Math.PI / 2
 const yRot = -Math.PI / 3
 const zRot = Math.PI / 4
-const x = 7.32
+const x = -7.32
 const y = 6.45
-const z = 8.95
+const z = 4.5
 
 const TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
-
 
 const RADII = [1, 4, 4, 4, 4, 2, 2]
 const AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
@@ -98,7 +97,7 @@ function init() {
 
     // camera
     camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 5, 2000000 );
-    camera.position.set(15, 15, 15);
+    camera.position.set(0, 20, 20);
     camera.up.set(0, 0, 1);
     camera.lookAt(0, 0, 0);
 
@@ -143,11 +142,6 @@ async function render() {
     orbit.update()
     solver.update()
     arm.updateMatrices(solver.getJoints())
-
-    console.log(`Target matrix:`)
-    console.log(mathToTHREE(TARGET))
-    console.log(`End effector matrix:`)
-    console.log(arm.arm[arm.arm.length - 1].matrix)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
