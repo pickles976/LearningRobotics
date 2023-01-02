@@ -36,18 +36,18 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
-const xRot = 0
-const yRot = 0
+const xRot = -Math.PI / 2
+const yRot = -Math.PI / 3
 const zRot = Math.PI / 4
-const x = 7
-const y = 6
-const z = 5
+const x = 7.32
+const y = 6.45
+const z = 8.95
 
 const TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
 
 const RADII = [1, 4, 4, 4, 4, 2, 2]
-const AXES = ['z', 'x', 'x', 'x', 'x', 'y', 'z']
+const AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
 const THETAS = [0, 0, 0, 0, 0, 0, 0]
 
 let canvas, renderer, camera, scene, orbit
@@ -140,13 +140,14 @@ function resizeRendererToDisplaySize(renderer) {
 
 async function render() {
 
-    // orbit.update(0.1)
     orbit.update()
     solver.update()
     arm.updateMatrices(solver.getJoints())
-    // console.log(solver.endEffector)
-    // console.log(solver.target)
-    console.log(solver.forwardMats)
+
+    console.log(`Target matrix:`)
+    console.log(mathToTHREE(TARGET))
+    console.log(`End effector matrix:`)
+    console.log(arm.arm[arm.arm.length - 1].matrix)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {

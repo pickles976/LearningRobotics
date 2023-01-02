@@ -124,11 +124,11 @@ export class IKSolver3D {
         this.generateMats()
         this.updateThetas()
         this.updateParams()
-        console.log(`Loss: ${this.loss}`)
+        // console.log(`Loss: ${this.loss}`)
     }
 
     getJoints() {
-        return this.matrices.filter((mat, i) => i > 0)
+        return this.forwardMats.filter((mat, i) => i > 0)
     }
 
 

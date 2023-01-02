@@ -45,7 +45,7 @@ export class Arm3D {
         const radialSegments = 12;  // ui: radialSegments
         const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
         geometry.rotateX(Math.PI / 2)
-        geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
+        geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
         const link = new THREE.Mesh(geometry, armMat)
         return link
 
@@ -56,23 +56,17 @@ export class Arm3D {
 
         let arm = []
 
-        let root = new THREE.Object3D()
-        // TODO: WHY DOES THIS WORK??? WE SHOULDNT HAVE THIS ISSUE
-        root.scale.set(-1, -1, -1)
-        root.rotateY(Math.PI)
-        this.scene.add(root)
+        this.scene.add(this.createBase(radii[0]))
 
         let axesHelper = new THREE.AxesHelper(3)
-        axesHelper.add(this.createBase(radii[0]))
-        root.add(axesHelper)
         arm.push(axesHelper)
+        this.scene.add(axesHelper)
     
         for(let i = 1; i < radii.length; i++) {
-            const axesHelper = new THREE.AxesHelper( 3 );
-            // axesHelper.add(this.createLink(radii[i]))
-            // this.scene.add(axesHelper)
             arm[i-1].add(this.createLink(radii[i]))
-            arm[i-1].add(axesHelper)
+
+            const axesHelper = new THREE.AxesHelper( 3 );
+            this.scene.add(axesHelper)
             arm.push(axesHelper)
         } 
     
@@ -89,15 +83,13 @@ export class Arm3D {
             this.arm[i].setRotationFromMatrix(tempMat)
 
             this.arm[i].updateMatrix()
-            
-            let x = tempMat.elements[3]
-            let y = tempMat.elements[7]
-            let z = tempMat.elements[11]
+
+            let x = tempMat.elements[12]
+            let y = tempMat.elements[13]
+            let z = tempMat.elements[14]
 
             this.arm[i].position.set(x, y, z)
-             
             this.arm[i].updateMatrix()
-
         }
     }
     

@@ -128,7 +128,7 @@ export function mathToTHREE(in_matrix) {
     }
 
     let m = new THREE.Matrix4()
-    return m.fromArray(arr)
+    return m.set(...arr)
 
 }
 
