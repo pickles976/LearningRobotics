@@ -43,7 +43,7 @@ export class Arm3D {
     createBase(length, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
-            color: COLORS[axis],
+            color: 0xDDDDDD,
             flatShading: true,
         });
     
@@ -72,7 +72,7 @@ export class Arm3D {
     
         // create arm links/joints
         for(let i = 1; i < radii.length; i++) {
-            arm[i-1].add(this.createLink(radii[i], axes[i]))
+            arm[i-1].add(this.createLink(radii[i], axes[i - 1]))
 
             const axesHelper = new THREE.AxesHelper( 3 );
             this.scene.add(axesHelper)
