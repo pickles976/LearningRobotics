@@ -25,6 +25,8 @@ let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot
 let RADII = [1, 4, 4, 4, 4, 2, 2]
 let AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
 let THETAS = [0, 0, 0, 0, 0, 0, 0]
+let MIN_ANGLES = []
+let MAX_ANGLES = []
 
 let canvas, renderer, camera, scene, orbit, gui, armjson, editor
 
@@ -42,7 +44,7 @@ function drawTarget(matrix) {
     root.add(axesHelper)
 
     // Draw the lines
-    const lineMat = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 5.0 } );
+    const lineMat = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 2.0 } );
     const points = []
     points.push(new THREE.Vector3(0, 0, 0))
     points.push(new THREE.Vector3(x, 0, 0))
@@ -84,7 +86,7 @@ function updateArmJSON() {
 
     arm.arm.forEach((element) => scene.remove(element))
     arm = new Arm3D(RADII, AXES, scene)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
+    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES)
     solver.target = TARGET
     solver.resetParams()
 
@@ -131,7 +133,11 @@ function initArmGUI() {
 function loadArmFromJSON(json) {
     RADII = json.arm.map((element) => element.link.length)
     AXES = json.arm.map((element) => element.joint.axis)
-    THETAS = json.arm.map((element) => 0)
+    MIN_ANGLES = json.arm.map((element) => element.joint.minAngle * Math.PI / 180)
+    MAX_ANGLES = json.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
+
+    // Just start in the middle of the constraint values
+    THETAS = json.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
 }
 
 function createGround() {
@@ -243,7 +249,7 @@ initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN)
+let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initializeMomentums()

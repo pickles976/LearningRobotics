@@ -6,7 +6,7 @@ export class IKSolver3D {
     ROT_CORRECTION = Math.PI
     MAX_DLOSS = 0.25
 
-    constructor(axes, radii, thetas, origin) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles) {
 
         // physical traits
         this.axes = axes
@@ -14,6 +14,9 @@ export class IKSolver3D {
         this.thetas = thetas
         this.origin = origin
         this.armLength = radii.reduce((acc, curr) => acc + curr, 0)
+
+        this.minAngles = minAngles
+        this.maxAngles = maxAngles
 
         // matrices
         this.matrices = []
@@ -97,8 +100,15 @@ export class IKSolver3D {
             // Clamp dLoss
             dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
 
-            this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
-            this.momentums[i] = dLoss
+            // this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            // this.momentums[i] = dLoss
+
+            let newTheta = this.thetas[i] - (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            
+            if (newTheta > this.minAngles[i] && newTheta < this.maxAngles[i]) {
+                this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+                this.momentums[i] = dLoss
+            }
 
         }
 

@@ -23,8 +23,8 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'y',
-                minAngle: 0,
-                maxAngle: 180
+                minAngle: -90,
+                maxAngle: 90
             }
         },
         { 
@@ -33,8 +33,8 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'y',
-                minAngle: 0,
-                maxAngle: 180
+                minAngle: -90,
+                maxAngle: 90
             }
         },
         { 
@@ -43,8 +43,8 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'y',
-                minAngle: 0,
-                maxAngle: 180
+                minAngle: -90,
+                maxAngle: 90
             }
         },
         { 
@@ -53,8 +53,8 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'y',
-                minAngle: 0,
-                maxAngle: 180
+                minAngle: -90,
+                maxAngle: 90
             }
         },
         { 
@@ -63,8 +63,8 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'x',
-                minAngle: 0,
-                maxAngle: 180
+                minAngle: -90,
+                maxAngle: 90
             }
         },
         { 
