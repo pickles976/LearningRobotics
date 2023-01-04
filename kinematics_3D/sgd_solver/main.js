@@ -224,6 +224,7 @@ async function render() {
     orbit.update()
     solver.update()
     arm.updateMatrices(solver.getJoints())
+    arm.updateBoundingBoxes(solver.getJoints())
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {

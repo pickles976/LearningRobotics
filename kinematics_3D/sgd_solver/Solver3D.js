@@ -100,9 +100,6 @@ export class IKSolver3D {
             // Clamp dLoss
             dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
 
-            // this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
-            // this.momentums[i] = dLoss
-
             let newTheta = this.thetas[i] - (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
             
             if (newTheta > this.minAngles[i] && newTheta < this.maxAngles[i]) {

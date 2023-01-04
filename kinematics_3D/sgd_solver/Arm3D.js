@@ -17,6 +17,29 @@ export class Arm3D {
 
         this.arm = this.createArm(this.linkLengths, this.axes)
 
+        this.boxHelpers = this.createBoxes()
+
+    }
+
+    box2Mesh(box) {
+        // make a BoxBufferGeometry of the same size as Box3
+        const dimensions = new THREE.Vector3().subVectors(box.max, box.min );
+        const boxGeo = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+
+        // move new mesh center so it's aligned with the original object
+        const matrix = new THREE.Matrix4().setPosition(dimensions.addVectors(box.min, box.max).multiplyScalar( 0.5 ));
+        boxGeo.applyMatrix4(matrix);
+
+        // make a mesh
+        return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ));
+    }
+
+    createBoxes() {
+        let boxes = this.arm.filter((link) => link.children[0])
+        boxes = boxes.map((obj) => new THREE.Box3().setFromObject(obj.children[obj.children.length - 1]))
+        boxes  = boxes.map((box) => this.box2Mesh(box))
+        boxes.forEach((bh) => this.scene.add(bh))
+        return boxes
     }
 
     // Create a mesh for a robotic arm Link
@@ -101,6 +124,28 @@ export class Arm3D {
             this.arm[i].position.set(x, y, z)
             this.arm[i].updateMatrix()
         }
+    }
+
+    // Update bounding boxes for collision detection/intersection
+    updateBoundingBoxes(matrices) {
+
+        for (let i = 0; i < this.boxHelpers.length; i++) {
+
+            // set arm transform equal to matrix
+            let tempMat = mathToTHREE(matrices[i])
+
+            this.boxHelpers[i].setRotationFromMatrix(tempMat)
+
+            this.boxHelpers[i].updateMatrix()
+
+            let x = tempMat.elements[12]
+            let y = tempMat.elements[13]
+            let z = tempMat.elements[14]
+
+            this.boxHelpers[i].position.set(x, y, z)
+            this.boxHelpers[i].updateMatrix()
+        }
+
     }
     
 
