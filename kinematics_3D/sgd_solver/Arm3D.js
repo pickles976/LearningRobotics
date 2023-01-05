@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { mathToTHREE } from './Geometry.js'
+import { mathToTHREE, toVertices } from './Geometry.js'
+import { Polygon, CheckCollision, Shape } from './modules/SATES6.js'
 
 const COLORS = {
     'x' : 0xFFAAAA,
@@ -20,26 +21,43 @@ export class Arm3D {
         this.boxHelpers = this.createBoxes()
 
         this.colliders = this.createColliders()
+        console.log(this.colliders)
 
     }
 
     createColliders() {
 
-        let polyhedra = this.boxHelpers.map((box) => console.log(box))
+        return this.boxHelpers.map((box) => {
+            let verts = toVertices(box.geometry.attributes.position)
+            
+            let indices = box.geometry.index
+
+            let edges = []
+            for(let i = 0; i < indices.length; i + 2) {
+                edges.push([indices[i], indices[i+1]])
+            }
+
+            let faces = []
+            for(let i = 0; i < indices.length; i + 3) {
+                faces.push([indices[i], indices[i+1], indices[i + 2]])
+            }
+
+            return new Shape(verts, edges, faces)
+        })
 
     }
 
     box2Mesh(box) {
         // make a BoxBufferGeometry of the same size as Box3
-        const dimensions = new THREE.Vector3().subVectors(box.max, box.min );
-        const boxGeo = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z);
+        const dimensions = new THREE.Vector3().subVectors(box.max, box.min )
+        const boxGeo = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z)
 
         // move new mesh center so it's aligned with the original object
-        const matrix = new THREE.Matrix4().setPosition(dimensions.addVectors(box.min, box.max).multiplyScalar( 0.5 ));
-        boxGeo.applyMatrix4(matrix);
+        const matrix = new THREE.Matrix4().setPosition(dimensions.addVectors(box.min, box.max).multiplyScalar( 0.5 ))
+        boxGeo.applyMatrix4(matrix)
 
         // make a mesh
-        return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ));
+        return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
     }
 
     createBoxes() {
