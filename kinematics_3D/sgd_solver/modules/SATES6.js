@@ -63,9 +63,9 @@ class Face {
 class Shape {
 
     constructor(vertices, faces, edges) {
-        this.__vertices = (vertices) ? null : vertices
-        this.__faces = (faces) ? null : faces
-        this.__edges = (edges) ? null : edges
+        this.__vertices = (vertices) ? vertices : null
+        this.__faces = (faces) ? faces.map((f) => new Face(this, f)) : null
+        this.__edges = (edges) ? edges.map((e) => new Edge(this, e[0], e[1])) : null
         this.__matrix = new THREE.Matrix4()
     }
 
@@ -148,6 +148,7 @@ class Shape {
     }
 
     Vertex(i) {
+        console.log(i)
         return this.__vertices[i].clone()
     }
 
@@ -181,10 +182,13 @@ class Shape {
 class Line extends Shape {
 
     constructor (start, end) {
+        let tempEdge = new Edge(null, 0, 1)
+        super([start, end], [], [tempEdge])
+        tempEdge.__shape = this
+        
         this.__direction = new THREE.Vector3().subVectors(end, start)
         this.__length = this.__direction.length()
         this.__direction.normalize()
-        super.__Constructor.call(this, [start, end], [], [Edge(this, 0, 1)])
     }
     
     GetDirection  () {
@@ -208,17 +212,22 @@ class Line extends Shape {
 class Polygon extends Shape  {
 
     constructor  (vertices) {
-        System.Assert.GreaterThan(vertices.length, 2)
+        // System.Assert.GreaterThan(vertices.length, 2)
         let edges = []
         for (let i = vertices.length - 1, j = 0; j < vertices.length; i = j, j++) {
-            edges.push(new Edge(this, i, j))
+            edges.push(new Edge(null, i, j))
         }
-        super.__Constructor.call(this, vertices, [new Face(this, System.Array.Range(0, vertices.length))], edges)
+
+        let tempFace = new Face(null, [...Array(vertices.length).keys()])
+        super(vertices, [tempFace], edges)
+        tempFace.__shape = this
+        edges.forEach((edge) => edge.__shape = this)
+
         this.__normal = null
         this.__centroid = null
         this.ComputeNormal()
         this.ComputeCentroid()
-    };
+    }
 
     ComputeNormal  () {
         this.__normal = new THREE.Vector3();
@@ -268,77 +277,6 @@ class Polygon extends Shape  {
                 origin.z + e1.z * vertex.x + e2.z * vertex.y)
     }
 
-}
-
-class Box extends Shape {
-
-    constructor  (width, height, depth) {
-        if (System.Type.IsUndefined(width) || System.Type.IsUndefined(height) || System.Type.IsUndefined(depth)) {
-            super(this)
-            return
-        }
-        this.__width = width
-        this.__height = height
-        this.__depth = depth
-        let halfExtents = new THREE.Vector3(this.__width, this.__height, this.__depth).multiplyScalar(0.5)
-        let vertices = [
-            new THREE.Vector3(-halfExtents.x, halfExtents.y, halfExtents.z), new THREE.Vector3(-halfExtents.x, -halfExtents.y, halfExtents.z),
-            new THREE.Vector3(halfExtents.x, -halfExtents.y, halfExtents.z), new THREE.Vector3(halfExtents.x, halfExtents.y, halfExtents.z),
-            new THREE.Vector3(halfExtents.x, halfExtents.y, -halfExtents.z), new THREE.Vector3(halfExtents.x, -halfExtents.y, -halfExtents.z),
-            new THREE.Vector3(-halfExtents.x, -halfExtents.y, -halfExtents.z), new THREE.Vector3(-halfExtents.x, halfExtents.y, -halfExtents.z)
-        ]
-        let faces = [
-            new Face(this, [0, 1, 2, 3]),  // front
-            new Face(this, [4, 5, 6, 7]),  // back
-            new Face(this, [3, 2, 5, 4]),  // right
-            new Face(this, [7, 6, 1, 0]),  // left
-            new Face(this, [7, 0, 3, 4]),  // top
-            new Face(this, [5, 2, 1, 6])   // bottom
-        ]
-        let edges = [
-            new Edge(this, 0, 1), new Edge(this, 1, 2), new Edge(this, 2, 3), new Edge(this, 3, 0),
-            new Edge(this, 4, 5), new Edge(this, 5, 6), new Edge(this, 6, 7), new Edge(this, 7, 4),
-            new Edge(this, 3, 4), new Edge(this, 2, 5), new Edge(this, 0, 7), new Edge(this, 1, 6)
-        ]
-        super(this, vertices, faces, edges)
-    };
-    
-    GetWidth  () {
-        return this.__width
-    }
-    
-    GetHeight  () {
-        return this.__height
-    }
-    
-    GetDepth  () {
-        return this.__depth
-    }
-    
-    Clone  () {
-        let clone = new Box()
-        clone.__width = this.__width
-        clone.__height = this.__height
-        clone.__depth = this.__depth
-        clone.__matrix = this.__matrix
-        let vertices = []
-        for (let i = 0; i < this.__vertices.length; i++) {
-            vertices.push(this.__vertices[i].clone())
-        }
-        let faces = [];
-        for (let i = 0; i < this.__faces.length; i++) {
-            faces.push(new Face(clone, this.__faces[i].VerticesIndices()))
-        }
-        let edges = []
-        for (let i = 0; i < this.__edges.length; i++) {
-            edges.push(new Edge(clone, this.__edges[i].StartIndex(), this.__edges[i].EndIndex()))
-        }
-        clone.__vertices = vertices
-        clone.__faces = faces
-        clone.__edges = edges
-        return clone
-    }
-    
 }
 
 function BuildMesh(shape0, params) {
@@ -415,14 +353,14 @@ function CheckGenericPolyhedraCollision (a0, b0) {
 
     for (let i = 0; i < a1.FaceCount(); i++) {
         let face = a1.Face(i).ToPolygon()
-        if (SAT.WhichSide(b1.Vertices(), face.Normal(), face.Vertex(0)) > 0) {
+        if (WhichSide(b1.Vertices(), face.Normal(), face.Vertex(0)) > 0) {
             return false
         }
     }
 
     for (let i = 0; i < b1.FaceCount(); i++) {
         let face = b1.Face(i).ToPolygon()
-        if (SAT.WhichSide(a1.Vertices(), face.Normal(), face.Vertex(0)) > 0) {
+        if (WhichSide(a1.Vertices(), face.Normal(), face.Vertex(0)) > 0) {
             return false
         }
     }
@@ -433,11 +371,11 @@ function CheckGenericPolyhedraCollision (a0, b0) {
             let e1 = b1.Edge(j).ToLine()
             let D = new THREE.Vector3().crossVectors(e0.GetDirection(), e1.GetDirection()).normalize()
             let same0
-            if ((same0 = SAT.WhichSide(a1.Vertices(), D, e0.Start())) == 0) {
+            if ((same0 = WhichSide(a1.Vertices(), D, e0.Start())) == 0) {
                 continue
             }
-            let same1;
-            if ((same1 = SAT.WhichSide(b1.Vertices(), D, e0.Start())) == 0) {
+            let same1
+            if ((same1 = WhichSide(b1.Vertices(), D, e0.Start())) == 0) {
                 continue
             }
             if (same0 * same1 < 0) {
@@ -465,20 +403,8 @@ function InverseModel(matrix) {
         0.0, 0.0, 0.0, 1.0)
 }
 
-function CheckBoxBoxCollision  (a0, b0) {
-    let inverseModel = SAT.InverseModel(a0.GetTransform())
-    let b1 = b0.Clone().ApplyMatrix4(inverseModel)
-    b1.ConsolidateSelf()
-
-    let vertices = b1.Vertices()
-    let e = new THREE.Vector3(a0.GetWidth(), a0.GetHeight(), a0.GetDepth()).multiplyScalar(0.5)
-}
-
 function CheckCollision(a, b) {
-    if (a instanceof Box && b instanceof Box) {
-        return SAT.CheckBoxBoxCollision(a, b)
-    }
-    return SAT.CheckGenericPolyhedraCollision(a, b)
+    return CheckGenericPolyhedraCollision(a, b)
 }
 
 export {

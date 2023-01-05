@@ -21,7 +21,7 @@ export class Arm3D {
         this.boxHelpers = this.createBoxes()
 
         this.colliders = this.createColliders()
-        console.log(this.colliders)
+        console.log(CheckCollision(this.colliders[0], this.colliders[2]))
 
     }
 
@@ -30,19 +30,19 @@ export class Arm3D {
         return this.boxHelpers.map((box) => {
             let verts = toVertices(box.geometry.attributes.position)
             
-            let indices = box.geometry.index
+            let indices = box.geometry.index.array
 
             let edges = []
-            for(let i = 0; i < indices.length; i + 2) {
+            for(let i = 0; i < indices.length; i += 2) {
                 edges.push([indices[i], indices[i+1]])
             }
 
             let faces = []
-            for(let i = 0; i < indices.length; i + 3) {
+            for(let i = 0; i < indices.length; i += 3) {
                 faces.push([indices[i], indices[i+1], indices[i + 2]])
             }
 
-            return new Shape(verts, edges, faces)
+            return new Shape(verts, faces, edges)
         })
 
     }
