@@ -21,8 +21,6 @@ export class Arm3D {
         this.boxHelpers = this.createBoxes()
 
         this.colliders = this.createColliders()
-        console.log(CheckCollision(this.colliders[0], this.colliders[2]))
-
     }
 
     createColliders() {
@@ -152,7 +150,7 @@ export class Arm3D {
         }
     }
 
-    // Update bounding boxes for collision detection/intersection
+    // Update bounding boxes for visualizing collision detection/intersection
     updateBoundingBoxes(matrices) {
 
         for (let i = 0; i < this.boxHelpers.length; i++) {
@@ -171,6 +169,22 @@ export class Arm3D {
             this.boxHelpers[i].position.set(x, y, z)
             this.boxHelpers[i].updateMatrix()
         }
+
+    }
+
+    updateColliders(matrices) {
+
+        for (let i = 0; i < this.colliders.length; i++) {
+
+            // set arm transform equal to matrix
+            let tempMat = mathToTHREE(matrices[i])
+
+            this.colliders[i].SetPosition(0, 0, 0)
+            this.colliders[i].SetRotation(0, 0, 0)
+            this.colliders[i].ApplyMatrix4(tempMat)
+        }
+
+        console.log(CheckCollision(this.colliders[0], this.colliders[2]))
 
     }
     

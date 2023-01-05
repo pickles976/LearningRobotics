@@ -103,15 +103,15 @@ class Shape {
         throw new Error("Method not implemented.")
     }
 
-    X() {
+    GetX() {
         return this.__matrix.elements[12]
     }
 
-    Y() {
+    GetY() {
         return this.__matrix.elements[13]
     }
 
-    Z() {
+    GetZ() {
         return this.__matrix.elements[14]
     }
 
@@ -148,7 +148,6 @@ class Shape {
     }
 
     Vertex(i) {
-        console.log(i)
         return this.__vertices[i].clone()
     }
 
@@ -185,7 +184,7 @@ class Line extends Shape {
         let tempEdge = new Edge(null, 0, 1)
         super([start, end], [], [tempEdge])
         tempEdge.__shape = this
-        
+
         this.__direction = new THREE.Vector3().subVectors(end, start)
         this.__length = this.__direction.length()
         this.__direction.normalize()

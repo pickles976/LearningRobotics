@@ -225,6 +225,7 @@ async function render() {
     solver.update()
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxes(solver.getJoints())
+    arm.updateColliders(solver.getJoints())
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
