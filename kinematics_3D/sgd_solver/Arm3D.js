@@ -19,6 +19,14 @@ export class Arm3D {
 
         this.boxHelpers = this.createBoxes()
 
+        this.colliders = this.createColliders()
+
+    }
+
+    createColliders() {
+
+        let polyhedra = this.boxHelpers.map((box) => console.log(box))
+
     }
 
     box2Mesh(box) {
