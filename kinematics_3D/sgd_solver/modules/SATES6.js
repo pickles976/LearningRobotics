@@ -406,8 +406,45 @@ function CheckCollision(a, b) {
     return CheckGenericPolyhedraCollision(a, b)
 }
 
+function ShapeFromGeometry(geometry) {
+
+    function toVertices(positions) {
+
+        const vertices = [];
+        for (let index = 0; index < positions.count; index++) {
+            vertices.push(
+            new THREE.Vector3(
+                positions.getX(index),
+                positions.getY(index),
+                positions.getZ(index)
+            )
+            )
+        }
+        return vertices
+    
+    }
+
+    let verts = toVertices(geometry.attributes.position)
+            
+    let indices = geometry.index.array
+
+    let edges = []
+    for(let i = 0; i < indices.length; i += 2) {
+        edges.push([indices[i], indices[i+1]])
+    }
+
+    let faces = []
+    for(let i = 0; i < indices.length; i += 3) {
+        faces.push([indices[i], indices[i+1], indices[i + 2]])
+    }
+
+    return new Shape(verts, faces, edges)
+
+}
+
 export {
     Polygon, 
     Shape,
     CheckCollision,
+    ShapeFromGeometry,
 }

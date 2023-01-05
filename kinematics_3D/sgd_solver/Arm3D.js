@@ -1,11 +1,13 @@
 import * as THREE from 'three'
-import { mathToTHREE, toVertices } from './Geometry.js'
-import { Polygon, CheckCollision, Shape } from './modules/SATES6.js'
+import { mathToTHREE } from './Geometry.js'
+import { Polygon, CheckCollision, Shape, ShapeFromGeometry } from './modules/SATES6.js'
 
 const COLORS = {
     'x' : 0xFFAAAA,
     'y' : 0xAAFFAA,
-    'z' : 0xAAAAFF
+    'z' : 0xAAAAFF,
+    true: 0xFF0000,
+    false: 0xFFFF00,
 }
 
 export class Arm3D {
@@ -21,26 +23,13 @@ export class Arm3D {
         this.boxHelpers = this.createBoxes()
 
         this.colliders = this.createColliders()
+        this.isColliding = new Array(this.colliders.length)
     }
 
     createColliders() {
 
         return this.boxHelpers.map((box) => {
-            let verts = toVertices(box.geometry.attributes.position)
-            
-            let indices = box.geometry.index.array
-
-            let edges = []
-            for(let i = 0; i < indices.length; i += 2) {
-                edges.push([indices[i], indices[i+1]])
-            }
-
-            let faces = []
-            for(let i = 0; i < indices.length; i += 3) {
-                faces.push([indices[i], indices[i+1], indices[i + 2]])
-            }
-
-            return new Shape(verts, faces, edges)
+            return ShapeFromGeometry(box.geometry)
         })
 
     }
@@ -168,6 +157,8 @@ export class Arm3D {
 
             this.boxHelpers[i].position.set(x, y, z)
             this.boxHelpers[i].updateMatrix()
+
+            this.boxHelpers[i].material.color.setHex(COLORS[this.isColliding[i]])
         }
 
     }
@@ -184,7 +175,24 @@ export class Arm3D {
             this.colliders[i].ApplyMatrix4(tempMat)
         }
 
-        console.log(CheckCollision(this.colliders[0], this.colliders[2]))
+        for (let i = 0; i < this.colliders.length; i++){
+            this.isColliding[i] = false
+        }
+
+        for (let i = 0; i < this.colliders.length; i++){
+            for (let j = 0; j < this.colliders.length; j++) {
+    
+                // ensure we dont check neighbors or self
+                if (Math.abs(i - j) > 1) {
+    
+                    if (CheckCollision(this.colliders[i], this.colliders[j])) {
+                        this.isColliding[i] = true
+                        this.isColliding[j] = true
+                    }
+    
+                }
+            }
+        }
 
     }
     
