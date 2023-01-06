@@ -164,6 +164,7 @@ export class Arm3D {
 
     }
 
+    // update the position of the colliders and the collision status
     updateColliders(matrices) {
 
         for (let i = 0; i < this.colliders.length; i++) {
@@ -181,10 +182,10 @@ export class Arm3D {
         }
 
         for (let i = 0; i < this.colliders.length; i++){
-            for (let j = 0; j < this.colliders.length; j++) {
+            for (let j = i; j < this.colliders.length; j++) {
     
                 // ensure we dont check neighbors or self
-                if (Math.abs(i - j) > 1) {
+                if (j - i > 1) {
     
                     if (CheckCollision(this.colliders[i], this.colliders[j])) {
                         this.isColliding[i] = true
