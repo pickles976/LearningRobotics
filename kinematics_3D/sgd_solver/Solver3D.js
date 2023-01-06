@@ -100,10 +100,11 @@ export class IKSolver3D {
             // Clamp dLoss
             dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
 
-            let newTheta = this.thetas[i] - (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            const nudge = (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+            let newTheta = this.thetas[i] - nudge
             
             if (newTheta > this.minAngles[i] && newTheta < this.maxAngles[i]) {
-                this.thetas[i] -= (this.momentums[i] * this.momentumRetain) + (dLoss * this.learnRate)
+                this.thetas[i] -= nudge
                 this.momentums[i] = dLoss
             }
 
