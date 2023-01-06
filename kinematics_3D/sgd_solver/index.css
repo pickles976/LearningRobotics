@@ -9,16 +9,35 @@ html, body {
     display: block;
  }
 
+ .lil-gui {
+   --name-width: 25%;
+   --font-size: 64;
+   --input-font-size: 64;
+ }
+
  .targetgui {
    position: absolute; 
+   --name-width: 10%;
    top: 0; 
    right: 0;
  }
 
- .armgui {
-   width: 400px;
-   /* height: 400px;  */
+ .armgui-container {
+   width: 100%;
    position: absolute; 
+   display: flex;
    bottom: 0; 
-   right: 50%;
+   justify-content: center;
+ }
+
+ .jsoneditor-container {
+   width: 20%;
+   height: 40%;
+   position: absolute; 
+   top: 0;
+ }
+
+ .jsoneditor {
+   /* position: absolute; 
+   top: 0; */
  }

@@ -99,15 +99,19 @@ function updateArmJSON() {
 function initArmGUI() {
 
     const container = document.getElementById("armgui")
-    armGUI = new GUI({ width: window.innerWidth / 4, container: container })
+    armGUI = new GUI({ width: window.innerWidth / 8, container: container, title: "Arm Options" })
 
     let controls = 
     {   
         "showColliders": true,
+        "toggleColliders": () => { 
+            controls.showColliders = !controls.showColliders 
+            updateArm(controls)
+        },
         "resetArm" : () => {updateArmJSON(), updateArm(controls)}
     }
 
-    armGUI.add( controls, 'showColliders', true, false).onChange(() => updateArm(controls))
+    armGUI.add( controls, 'toggleColliders')
     armGUI.add( controls, 'resetArm')
     armGUI.open()
 }
@@ -115,7 +119,7 @@ function initArmGUI() {
 function initTargetGUI() {
 
     const container = document.getElementById("targetgui")
-    targetGUI = new GUI({ width: window.innerWidth / 4, container: container })
+    targetGUI = new GUI({ width: window.innerWidth / 4, container: container, title: "End Effector Controls" })
 
     let controls = 
     {   
