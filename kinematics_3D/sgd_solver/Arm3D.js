@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { mathToTHREE } from './Geometry.js'
-import { Polygon, CheckCollision, Shape, ShapeFromGeometry } from './modules/SATES6.js'
+// import { Polygon, CheckCollision, Shape, ShapeFromGeometry } from './modules/SATES6.js'
+import { CheckCollision, ShapeFromGeometry } from 'SAT'
 
 const COLORS = {
     'x' : 0xFFAAAA,
