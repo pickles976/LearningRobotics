@@ -22,13 +22,13 @@ const z = 7
 
 let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
-let RADII = [1, 4, 4, 4, 4, 2, 2]
-let AXES = ['z', 'y', 'y', 'y', 'y', 'x', 'z']
-let THETAS = [0, 0, 0, 0, 0, 0, 0]
+let RADII = []
+let AXES = []
+let THETAS = []
 let MIN_ANGLES = []
 let MAX_ANGLES = []
 
-let canvas, renderer, camera, scene, orbit, gui, armjson, editor
+let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor
 
 function drawTarget(matrix) {
 
@@ -96,9 +96,26 @@ function updateArmJSON() {
 
 }
 
+function initArmGUI() {
+
+    const container = document.getElementById("armgui")
+    armGUI = new GUI({ width: window.innerWidth / 4, container: container })
+
+    let controls = 
+    {   
+        "showColliders": true,
+        "resetArm" : () => {updateArmJSON(), updateArm(controls)}
+    }
+
+    armGUI.add( controls, 'showColliders', true, false).onChange(() => updateArm(controls))
+    armGUI.add( controls, 'resetArm')
+    armGUI.open()
+}
+
 function initTargetGUI() {
 
-    gui = new GUI({ width: window.innerWidth / 3, })
+    const container = document.getElementById("targetgui")
+    targetGUI = new GUI({ width: window.innerWidth / 4, container: container })
 
     let controls = 
     {   
@@ -108,21 +125,18 @@ function initTargetGUI() {
         xRot, 
         yRot, 
         zRot,
-        "showColliders": true,
-    };
+    }
 
-    gui.add( controls, 'x', -15, 15).onChange((value) => updateTarget(controls))
-    gui.add( controls, 'y', -15, 15).onChange(() => updateTarget(controls))
-    gui.add( controls, 'z', 0, 15).onChange(() => updateTarget(controls))
-    gui.add( controls, 'xRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
-    gui.add( controls, 'yRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
-    gui.add( controls, 'zRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
-    
-    gui.add( controls, 'showColliders', true, false).onChange(() => updateArm(controls))
-    gui.open();
+    targetGUI.add( controls, 'x', -15, 15).onChange((value) => updateTarget(controls))
+    targetGUI.add( controls, 'y', -15, 15).onChange(() => updateTarget(controls))
+    targetGUI.add( controls, 'z', 0, 15).onChange(() => updateTarget(controls))
+    targetGUI.add( controls, 'xRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    targetGUI.add( controls, 'yRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    targetGUI.add( controls, 'zRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    targetGUI.open();
 }
 
-function initArmGUI() {
+function initJsonGUI() {
 
     // create the editor
     const container = document.getElementById("jsoneditor")
@@ -254,6 +268,7 @@ async function render() {
 
 init()
 initTargetGUI()
+initJsonGUI()
 initArmGUI()
 createGround()
 

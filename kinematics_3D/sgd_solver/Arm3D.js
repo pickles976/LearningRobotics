@@ -25,6 +25,9 @@ export class Arm3D {
 
         this.colliders = this.createColliders()
         this.isColliding = new Array(this.colliders.length)
+
+        this.drawColliders = true
+
     }
 
     createColliders() {
@@ -143,6 +146,9 @@ export class Arm3D {
     // Update bounding boxes for visualizing collision detection/intersection
     updateBoundingBoxes(matrices) {
 
+        // determine whether or not to draw boxes
+        this.boxHelpers.forEach((bh) => bh.visible = this.drawColliders)
+
         for (let i = 0; i < this.boxHelpers.length; i++) {
 
             // set arm transform equal to matrix
@@ -208,7 +214,7 @@ export class Arm3D {
 
     showColliders(bool) {
 
-        this.boxHelpers.forEach((bh) => bh.visible = bool)
+        this.drawColliders = bool
 
     }
     
