@@ -197,6 +197,20 @@ export class Arm3D {
         }
 
     }
+
+    /**
+     * Clean up the Three.js objects belonging to this arm from the scene.
+     */
+    cleanup() {
+        this.arm.forEach((element) => this.scene.remove(element))
+        this.boxHelpers.forEach((element) => this.scene.remove(element))
+    }
+
+    showColliders(bool) {
+
+        this.boxHelpers.forEach((bh) => bh.visible = bool)
+
+    }
     
 
 }

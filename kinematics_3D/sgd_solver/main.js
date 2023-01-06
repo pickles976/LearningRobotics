@@ -62,6 +62,10 @@ function drawTarget(matrix) {
 
 }
 
+function updateArm(controls) {
+    arm.showColliders(controls.showColliders)
+}
+
 function updateTarget(controls) {
 
     let x = controls.x
@@ -84,7 +88,7 @@ function updateArmJSON() {
 
     loadArmFromJSON(editor.get())
 
-    arm.arm.forEach((element) => scene.remove(element))
+    arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
     solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES)
     solver.target = TARGET
@@ -103,7 +107,8 @@ function initTargetGUI() {
         z,
         xRot, 
         yRot, 
-        zRot
+        zRot,
+        "showColliders": true,
     };
 
     gui.add( controls, 'x', -15, 15).onChange((value) => updateTarget(controls))
@@ -112,6 +117,8 @@ function initTargetGUI() {
     gui.add( controls, 'xRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
     gui.add( controls, 'yRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
     gui.add( controls, 'zRot', -Math.PI, Math.PI).onChange(() => updateTarget(controls))
+    
+    gui.add( controls, 'showColliders', true, false).onChange(() => updateArm(controls))
     gui.open();
 }
 
