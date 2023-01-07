@@ -1,4 +1,4 @@
-import { findSelfIntersections, isSelfIntersecting } from "./CollisionProvider.js"
+import { findSelfIntersections, isIntersectingObjects, isSelfIntersecting } from "./CollisionProvider.js"
 import { IDENTITY, mat4, transformLoss } from "./Geometry.js"
 
 const MUTATION_SIZE = 0.25 // how large mutations can be
@@ -87,7 +87,7 @@ export class IKSolverGA {
         this.generateMats()
         this.updateThetas()
         this._iterations += 1
-        // console.log(this.loss)
+        console.log(this.loss)
     }
 
     resetParams() {

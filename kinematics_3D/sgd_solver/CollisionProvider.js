@@ -97,10 +97,14 @@ export function isIntersectingObjects(armColliders, matrices, obstacles){
 
     let colliders = transformColliders(armColliders, matrices)
 
+    // console.log(colliders)
+
     colliders.forEach((collider) => {
         obstacles.forEach((obstacle) => {
-            if (CheckCollision(collider, obstacle)) {
-                return true
+            if (collider.GetCenter().distanceTo(obstacle.GetCenter() < 4.0)) {
+                if (CheckCollision(collider, obstacle)) {
+                    return true
+                }
             }
         })
     })

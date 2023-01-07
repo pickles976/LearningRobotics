@@ -6,10 +6,6 @@ import { IKSolverGA } from './SolverGA.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
 import { ArmJson } from './ArmJson.js'
-import { ObstacleManager } from './ObstacleManager.js'
-
-const SGD_THRESH = 0.000001
-const GA_THRESH = 0.0001
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -33,7 +29,7 @@ let THETAS = []
 let MIN_ANGLES = []
 let MAX_ANGLES = []
 
-let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor, obstacleManager
+let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor
 
 function drawTarget(matrix) {
 
@@ -171,31 +167,6 @@ function loadArmFromJSON(json) {
     THETAS = json.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
 }
 
-function createObstacles() {
-
-    let obstacles = []
-    
-    const material = new THREE.MeshPhongMaterial({
-        color: 0xDDDDDD,    // red (can also use a CSS color string here)
-        flatShading: true,
-    });
-    const geometry = new THREE.BoxGeometry(3, 3, 3)
-
-    for (let i = 0; i < 5; i++) {
-        const obstacle = new THREE.Mesh(geometry, material)
-
-        const r = 5 + (Math.random() * 15)
-        const theta = Math.random() * Math.PI
-
-        obstacle.translateX(r * Math.cos(theta))
-        obstacle.translateY(r * Math.sin(theta))
-        obstacle.translateZ(1.5)
-        obstacles.push(obstacle)
-    }
-
-    obstacleManager = new ObstacleManager(scene, obstacles)
-}
-
 function createGround() {
     
     const groundMat = new THREE.MeshPhongMaterial({
@@ -308,7 +279,6 @@ initTargetGUI()
 initJsonGUI()
 initArmGUI()
 createGround()
-createObstacles()
 
 let arm = new Arm3D(RADII, AXES, scene)
 // let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
