@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { mathToTHREE } from './Geometry.js'
-// import { Polygon, CheckCollision, Shape, ShapeFromGeometry } from './modules/SATES6.js'
-import { CheckCollision, ShapeFromGeometry } from 'SAT'
+import { ShapeFromGeometry } from 'SAT'
+import { findSelfIntersections } from './CollisionProvider.js'
 
 const COLORS = {
     'x' : 0xFFAAAA,
@@ -15,30 +15,30 @@ export class Arm3D {
 
     constructor(linkLengths, axes, scene) {
 
-        this.scene = scene
-        this.linkLengths = linkLengths
-        this.axes = axes
+        this._scene = scene
+        this._linkLengths = linkLengths
+        this._axes = axes
 
-        this.arm = this.createArm(this.linkLengths, this.axes)
+        this.arm = this._createArm(this._linkLengths, this._axes)
 
-        this.boxHelpers = this.createBoxes()
+        this._boxHelpers = this._createBoxes()
 
-        this.colliders = this.createColliders()
-        this.isColliding = new Array(this.colliders.length)
+        this.colliders = this._createColliders()
+        this._isColliding = []
 
         this.drawColliders = true
 
     }
 
-    createColliders() {
-
-        return this.boxHelpers.map((box) => {
+    // Create the actual colliders used for collision detection
+    _createColliders() {
+        return this._boxHelpers.map((box) => {
             return ShapeFromGeometry(box.geometry)
         })
-
     }
 
-    box2Mesh(box) {
+    // Turn a bounding box into a drawable mesh
+    _bbox2Mesh(box) {
         // make a BoxBufferGeometry of the same size as Box3
         const dimensions = new THREE.Vector3().subVectors(box.max, box.min )
         const boxGeo = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z)
@@ -51,71 +51,60 @@ export class Arm3D {
         return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
     }
 
-    createBoxes() {
+    // Creat bounding boxes and convert them into meshes
+    _createBoxes() {
         let boxes = this.arm.filter((link) => link.children[0])
         boxes = boxes.map((obj) => new THREE.Box3().setFromObject(obj.children[obj.children.length - 1]))
-        boxes  = boxes.map((box) => this.box2Mesh(box))
-        boxes.forEach((bh) => this.scene.add(bh))
+        boxes  = boxes.map((box) => this._bbox2Mesh(box))
+        boxes.forEach((bh) => this._scene.add(bh))
         return boxes
     }
 
     // Create a mesh for a robotic arm Link
-    createLink(length, axis) {
+    _createLink(length, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
             color: COLORS[axis],
             flatShading: true,
         });
     
-        const radiusTop = 0.4;  // ui: radiusTop
-        const radiusBottom = 0.6;  // ui: radiusBottom
-        const height = length;  // ui: height
-        const radialSegments = 12;  // ui: radialSegments
-        const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+        const geometry = new THREE.CylinderGeometry(0.4, 0.6, length, 12)
         geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
-        const link = new THREE.Mesh(geometry, armMat)
-        return link
-
+        return new THREE.Mesh(geometry, armMat)
     }
 
     // Create a mesh for a robotic arm Base
-    createBase(length, axis) {
+    _createBase(length, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
             color: 0xDDDDDD,
             flatShading: true,
         });
     
-        const radiusTop = 0.5;  // ui: radiusTop
-        const radiusBottom = 0.75;  // ui: radiusBottom
-        const height = length;  // ui: height
-        const radialSegments = 12;  // ui: radialSegments
-        const geometry = new THREE.CylinderGeometry(radiusTop, radiusBottom, height, radialSegments);
+        const geometry = new THREE.CylinderGeometry(0.5, 0.75, length, 12)
         geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
-        const link = new THREE.Mesh(geometry, armMat)
-        return link
-
+        return new THREE.Mesh(geometry, armMat)
     }
 
 
-    createArm(radii, axes) {
+    _createArm(radii, axes) {
 
         let arm = []
 
         // create base
         let axesHelper = new THREE.AxesHelper(3)
-        axesHelper.add(this.createBase(radii[0], axes[0]))
+        axesHelper.add(this._createBase(radii[0], axes[0]))
         arm.push(axesHelper)
-        this.scene.add(axesHelper)
+        this._scene.add(axesHelper)
     
         // create arm links/joints
         for(let i = 1; i < radii.length; i++) {
-            arm[i-1].add(this.createLink(radii[i], axes[i - 1]))
+            arm[i-1].add(this._createLink(radii[i], axes[i - 1]))
 
             const axesHelper = new THREE.AxesHelper( 3 );
-            this.scene.add(axesHelper)
+            this._scene.add(axesHelper)
             arm.push(axesHelper)
         } 
     
@@ -147,25 +136,25 @@ export class Arm3D {
     updateBoundingBoxes(matrices) {
 
         // determine whether or not to draw boxes
-        this.boxHelpers.forEach((bh) => bh.visible = this.drawColliders)
+        this._boxHelpers.forEach((bh) => bh.visible = this.drawColliders)
 
-        for (let i = 0; i < this.boxHelpers.length; i++) {
+        for (let i = 0; i < this._boxHelpers.length; i++) {
 
             // set arm transform equal to matrix
             let tempMat = mathToTHREE(matrices[i])
 
-            this.boxHelpers[i].setRotationFromMatrix(tempMat)
+            this._boxHelpers[i].setRotationFromMatrix(tempMat)
 
-            this.boxHelpers[i].updateMatrix()
+            this._boxHelpers[i].updateMatrix()
 
             let x = tempMat.elements[12]
             let y = tempMat.elements[13]
             let z = tempMat.elements[14]
 
-            this.boxHelpers[i].position.set(x, y, z)
-            this.boxHelpers[i].updateMatrix()
+            this._boxHelpers[i].position.set(x, y, z)
+            this._boxHelpers[i].updateMatrix()
 
-            this.boxHelpers[i].material.color.setHex(COLORS[this.isColliding[i]])
+            this._boxHelpers[i].material.color.setHex(COLORS[this._isColliding[i]])
         }
 
     }
@@ -173,43 +162,16 @@ export class Arm3D {
     // update the position of the colliders and the collision status
     updateColliders(matrices) {
 
-        for (let i = 0; i < this.colliders.length; i++) {
-
-            // set arm transform equal to matrix
-            let tempMat = mathToTHREE(matrices[i])
-
-            this.colliders[i].SetPosition(0, 0, 0)
-            this.colliders[i].SetRotation(0, 0, 0)
-            this.colliders[i].ApplyMatrix4(tempMat)
-        }
-
-        for (let i = 0; i < this.colliders.length; i++){
-            this.isColliding[i] = false
-        }
-
-        for (let i = 0; i < this.colliders.length; i++){
-            for (let j = i; j < this.colliders.length; j++) {
-    
-                // ensure we dont check neighbors or self
-                if (j - i > 1) {
-    
-                    if (CheckCollision(this.colliders[i], this.colliders[j])) {
-                        this.isColliding[i] = true
-                        this.isColliding[j] = true
-                    }
-    
-                }
-            }
-        }
+        this._isColliding = findSelfIntersections(this.colliders, matrices)
 
     }
 
     /**
-     * Clean up the Three.js objects belonging to this arm from the scene.
+     * Clean up the Three.js objects belonging to this arm from the _scene.
      */
     cleanup() {
-        this.arm.forEach((element) => this.scene.remove(element))
-        this.boxHelpers.forEach((element) => this.scene.remove(element))
+        this.arm.forEach((element) => this._scene.remove(element))
+        this._boxHelpers.forEach((element) => this._scene.remove(element))
     }
 
     showColliders(bool) {

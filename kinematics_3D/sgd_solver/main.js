@@ -64,6 +64,7 @@ function drawTarget(matrix) {
 
 function updateArm(controls) {
     arm.showColliders(controls.showColliders)
+    solver.collisionConstraints(controls.selfIntersectionConstraints)
 }
 
 function updateTarget(controls) {
@@ -90,7 +91,7 @@ function updateArmJSON() {
 
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES)
+    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
     solver.target = TARGET
     solver.resetParams()
 
@@ -104,14 +105,20 @@ function initArmGUI() {
     let controls = 
     {   
         "showColliders": true,
+        "selfIntersectionConstraints": false,
         "toggleColliders": () => { 
             controls.showColliders = !controls.showColliders 
+            updateArm(controls)
+        },
+        "toggleSelfIntersection": () => {
+            controls.selfIntersectionConstraints = !controls.selfIntersectionConstraints
             updateArm(controls)
         },
         "resetArm" : () => {updateArmJSON(), updateArm(controls)}
     }
 
     armGUI.add( controls, 'toggleColliders')
+    armGUI.add( controls, 'toggleSelfIntersection')
     armGUI.add( controls, 'resetArm')
     armGUI.open()
 }
@@ -277,7 +284,7 @@ initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES)
+let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initializeMomentums()

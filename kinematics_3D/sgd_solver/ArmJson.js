@@ -43,13 +43,13 @@ export const ArmJson = {
             },
             joint : {
                 axis: 'z',
-                minAngle: -180,
-                maxAngle: 180
+                minAngle: -360,
+                maxAngle: 360
             }
         },
         { 
             link : {
-                length: 1
+                length: 2
             },
             joint : {
                 axis: 'y',
@@ -82,7 +82,7 @@ export const ArmJson = {
                 length: 2
             },
             joint : {
-                axis: 'x',
+                axis: 'y',
                 minAngle: -180,
                 maxAngle: 180
             }
