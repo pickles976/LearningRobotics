@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
-import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
-import { Arm3D } from './Arm3D.js'
-import { ArmJson } from './ArmJson.js'
-import { IKSolverHybrid } from './HybridSolver.js'
+import { mathToTHREE, rMat3D, tMat3D } from './util/Geometry.js'
+import { Arm3D } from './util/Arm3D.js'
+import { ArmJson } from './util/ArmJson.js'
+import { IKSolverHybrid } from './Solver/HybridSolver.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],

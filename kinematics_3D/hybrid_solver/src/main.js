@@ -1,11 +1,11 @@
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
-import { IKSolver3D } from './Solver3D.js'
-import { IKSolverGA } from './SolverGA.js'
-import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
-import { Arm3D } from './Arm3D.js'
-import { ArmJson } from './ArmJson.js'
+import { IKSolver3D } from './Solver/Solver3D.js'
+import { IKSolverGA } from './Solver/SolverGA.js'
+import { mathToTHREE, rMat3D, tMat3D } from './util/Geometry.js'
+import { Arm3D } from './util/Arm3D.js'
+import { ArmJson } from './util/ArmJson.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -91,8 +91,8 @@ function updateArmJSON() {
 
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
-    // solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    // solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
     solver.target = TARGET
     solver.resetParams()
 
@@ -251,6 +251,11 @@ async function render() {
     orbit.update()
 
     solver.update()
+
+    if (solver.loss < 0.0001) {
+        console.log(solver._iterations)
+    }
+
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxes(solver.getJoints())
     arm.updateColliders(solver.getJoints())
@@ -281,8 +286,8 @@ initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
-// let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+// let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initialize()
