@@ -149,7 +149,7 @@ export class IKSolver3D {
     resetParams() {
         this._iterations = 0
         this._currentLearnRate = this._learnRate
-        this.initializeMomentums()
+        this.initialize()
     }
 
     update() {
