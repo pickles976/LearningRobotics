@@ -93,7 +93,7 @@ function updateArmJSON() {
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
     // solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
     solver.target = TARGET
     solver.resetParams()
 
@@ -256,10 +256,12 @@ function resizeRendererToDisplaySize(renderer) {
 async function render() {
 
     orbit.update()
+
     solver.update()
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxes(solver.getJoints())
     arm.updateColliders(solver.getJoints())
+
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
@@ -287,7 +289,7 @@ createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
 // let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initialize()

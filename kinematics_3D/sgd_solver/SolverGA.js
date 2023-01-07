@@ -83,6 +83,7 @@ export class IKSolverGA {
     update() {
         this.generateMats()
         this.updateThetas()
+        this._iterations += 1
         console.log(this.loss)
     }
 
