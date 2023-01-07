@@ -13,3 +13,5 @@ https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubunt
 Use the separating axis theorem for collision detection
 https://github.com/pboechat/SAT.js?files=1
 
+main.js is used for testing the individual algorithms
+main_hybrid.js is used for testing the hybrid algorithm which solves in a single frame

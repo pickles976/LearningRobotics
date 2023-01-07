@@ -64,7 +64,6 @@ function drawTarget(matrix) {
 
 function updateArm(controls) {
     arm.showColliders(controls.showColliders)
-    solver.collisionConstraints(controls.selfIntersectionConstraints)
 }
 
 function updateTarget(controls) {
@@ -103,20 +102,14 @@ function initArmGUI() {
     let controls = 
     {   
         "showColliders": true,
-        "selfIntersectionConstraints": false,
         "toggleColliders": () => { 
             controls.showColliders = !controls.showColliders 
-            updateArm(controls)
-        },
-        "toggleSelfIntersection": () => {
-            controls.selfIntersectionConstraints = !controls.selfIntersectionConstraints
             updateArm(controls)
         },
         "resetArm" : () => {updateArmJSON(), updateArm(controls)}
     }
 
     armGUI.add( controls, 'toggleColliders')
-    armGUI.add( controls, 'toggleSelfIntersection')
     armGUI.add( controls, 'resetArm')
     armGUI.open()
 }

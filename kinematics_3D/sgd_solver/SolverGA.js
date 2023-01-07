@@ -1,6 +1,9 @@
 import { findSelfIntersections, isSelfIntersecting } from "./CollisionProvider.js"
 import { IDENTITY, mat4, transformLoss } from "./Geometry.js"
 
+const MUTATION_SIZE = 0.25 // how large mutations can be
+const PENALTY = 100000.0
+
 export class IKSolverGA {
 
     ROT_CORRECTION = Math.PI
@@ -141,6 +144,9 @@ export class IKSolverGA {
         // calculate error between end effector
         let endEffector = forwardMats[forwardMats.length - 1]
 
+        // check self-intersection
+        if (isSelfIntersecting(this._colliders, forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
+
         return 1 / transformLoss(endEffector, this.target, this._armLength, this.ROT_CORRECTION)
         
     }
@@ -150,7 +156,11 @@ export class IKSolverGA {
 
         let totalLoss = 0
 
+        if (isSelfIntersecting(this._colliders, this.getJoints())) { return PENALTY }
+
         totalLoss += transformLoss(actual, this.target, this._armLength, this.ROT_CORRECTION)
+
+        // distance from each object
 
         return totalLoss
 
@@ -208,7 +218,7 @@ class Gene {
         for (let i = 0; i < this.thetas.length; i++) {
             if (Math.random() < this.controls.mutationRate) {
                 // this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate / 5, 2)) * Math.PI * (Math.random() - 0.5) // account for threshold
-                this.thetas[i] += Math.PI * (Math.random() - 0.5) // account for threshold
+                this.thetas[i] += MUTATION_SIZE * Math.PI * (Math.random() - 0.5) // account for threshold
                 this.thetas[i] = Math.min(this.controls.maxAngles[i], Math.max(this.controls.minAngles[i], this.thetas[i])) // clamp to constraints
             }
         }

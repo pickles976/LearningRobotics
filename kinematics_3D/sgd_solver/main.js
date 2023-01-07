@@ -6,6 +6,7 @@ import { IKSolverGA } from './SolverGA.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
 import { ArmJson } from './ArmJson.js'
+import { ObstacleManager } from './ObstacleManager.js'
 
 const SGD_THRESH = 0.000001
 const GA_THRESH = 0.0001
@@ -32,7 +33,7 @@ let THETAS = []
 let MIN_ANGLES = []
 let MAX_ANGLES = []
 
-let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor
+let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor, obstacleManager
 
 function drawTarget(matrix) {
 
@@ -68,7 +69,6 @@ function drawTarget(matrix) {
 
 function updateArm(controls) {
     arm.showColliders(controls.showColliders)
-    solver.collisionConstraints(controls.selfIntersectionConstraints)
 }
 
 function updateTarget(controls) {
@@ -96,7 +96,7 @@ function updateArmJSON() {
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
     // solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
     solver.target = TARGET
     solver.resetParams()
 
@@ -110,20 +110,14 @@ function initArmGUI() {
     let controls = 
     {   
         "showColliders": true,
-        "selfIntersectionConstraints": false,
         "toggleColliders": () => { 
             controls.showColliders = !controls.showColliders 
-            updateArm(controls)
-        },
-        "toggleSelfIntersection": () => {
-            controls.selfIntersectionConstraints = !controls.selfIntersectionConstraints
             updateArm(controls)
         },
         "resetArm" : () => {updateArmJSON(), updateArm(controls)}
     }
 
     armGUI.add( controls, 'toggleColliders')
-    armGUI.add( controls, 'toggleSelfIntersection')
     armGUI.add( controls, 'resetArm')
     armGUI.open()
 }
@@ -175,6 +169,31 @@ function loadArmFromJSON(json) {
 
     // Just start in the middle of the constraint values
     THETAS = json.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
+}
+
+function createObstacles() {
+
+    let obstacles = []
+    
+    const material = new THREE.MeshPhongMaterial({
+        color: 0xDDDDDD,    // red (can also use a CSS color string here)
+        flatShading: true,
+    });
+    const geometry = new THREE.BoxGeometry(3, 3, 3)
+
+    for (let i = 0; i < 5; i++) {
+        const obstacle = new THREE.Mesh(geometry, material)
+
+        const r = 5 + (Math.random() * 15)
+        const theta = Math.random() * Math.PI
+
+        obstacle.translateX(r * Math.cos(theta))
+        obstacle.translateY(r * Math.sin(theta))
+        obstacle.translateZ(1.5)
+        obstacles.push(obstacle)
+    }
+
+    obstacleManager = new ObstacleManager(scene, obstacles)
 }
 
 function createGround() {
@@ -289,10 +308,11 @@ initTargetGUI()
 initJsonGUI()
 initArmGUI()
 createGround()
+createObstacles()
 
 let arm = new Arm3D(RADII, AXES, scene)
 // let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initialize()
