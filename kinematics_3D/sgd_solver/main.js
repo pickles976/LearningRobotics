@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver3D.js'
+import { IKSolverGA } from './SolverGA.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
 import { ArmJson } from './ArmJson.js'
@@ -91,7 +92,8 @@ function updateArmJSON() {
 
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    // solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
     solver.target = TARGET
     solver.resetParams()
 
@@ -284,9 +286,10 @@ initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+// let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
 solver.target = TARGET
-solver.initializeMomentums()
+solver.initialize()
 
 requestAnimationFrame(render)

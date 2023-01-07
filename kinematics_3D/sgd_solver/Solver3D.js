@@ -47,7 +47,7 @@ export class IKSolver3D {
 
     }
 
-    initializeMomentums() {
+    initialize() {
         this._momentums = []
 
         this._thetas.forEach(theta => {
