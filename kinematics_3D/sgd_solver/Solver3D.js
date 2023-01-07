@@ -132,10 +132,10 @@ export class IKSolver3D {
 
         totalLoss += transformLoss(actual, this.target, this._armLength, this.ROT_CORRECTION)
         
-        if (this._collisionConstraints) { 
-            let numCollisions = this._checkCollisions(i, dMat)
-            totalLoss *= (1 + numCollisions)
-        }
+        // if (this._collisionConstraints) { 
+        //     let numCollisions = this._checkCollisions(i, dMat)
+        //     totalLoss *= (1 + numCollisions)
+        // }
 
         return totalLoss
 
@@ -147,6 +147,7 @@ export class IKSolver3D {
     }
 
     resetParams() {
+        this.loss = 100.0
         this._iterations = 0
         this._currentLearnRate = this._learnRate
         this.initialize()
@@ -158,6 +159,30 @@ export class IKSolver3D {
         this.updateParams()
 
         // console.log(`Loss: ${this.loss}`)
+    }
+
+    solve(target, thresh) {
+
+        const startTime = Date.now()
+        const timeout = 100
+
+        this.resetParams()
+        this.target = target
+
+        console.log(`Running Gradient Algorithm...`)
+
+        while (this._iterations < timeout){
+            if (this.loss > thresh){
+                this.update()
+            }else{
+                console.log(`Optimal solution found after ${this._iterations} iterations!`)
+                console.log(`Elapsed Time: ${Date.now() - startTime}ms`)
+                return
+            }
+        }
+
+        console.log(`Could not converge in ${timeout} iterations`)
+
     }
 
     getJoints() {

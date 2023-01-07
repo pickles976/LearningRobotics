@@ -1,14 +1,10 @@
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
-import { IKSolver3D } from './Solver3D.js'
-import { IKSolverGA } from './SolverGA.js'
 import { mathToTHREE, rMat3D, tMat3D } from './Geometry.js'
 import { Arm3D } from './Arm3D.js'
 import { ArmJson } from './ArmJson.js'
-
-const SGD_THRESH = 0.000001
-const GA_THRESH = 0.0001
+import { IKSolverHybrid } from './HybridSolver.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -84,8 +80,7 @@ function updateTarget(controls) {
 
     scene.remove(target)
     target = drawTarget(TARGET)
-    solver.target = TARGET
-    solver.resetParams()
+    solver.solve(TARGET)
 
 }
 
@@ -95,10 +90,8 @@ function updateArmJSON() {
 
     arm.cleanup()
     arm = new Arm3D(RADII, AXES, scene)
-    // solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver.target = TARGET
-    solver.resetParams()
+    solver = new IKSolverHybrid(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    solver.solve(TARGET)
 
 }
 
@@ -260,7 +253,6 @@ async function render() {
 
     orbit.update()
 
-    solver.update()
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxes(solver.getJoints())
     arm.updateColliders(solver.getJoints())
@@ -291,10 +283,9 @@ initArmGUI()
 createGround()
 
 let arm = new Arm3D(RADII, AXES, scene)
-// let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let solver = new IKSolverHybrid(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
 let target = drawTarget(TARGET)
-solver.target = TARGET
-solver.initialize()
+solver.solve(TARGET)
+
 
 requestAnimationFrame(render)

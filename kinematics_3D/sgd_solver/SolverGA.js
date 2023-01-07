@@ -84,7 +84,37 @@ export class IKSolverGA {
         this.generateMats()
         this.updateThetas()
         this._iterations += 1
-        console.log(this.loss)
+        // console.log(this.loss)
+    }
+
+    resetParams() {
+        this.loss = 100.0
+        this._iterations = 0
+        this.initialize()
+    }
+
+    solve(target, thresh) {
+
+        const startTime = Date.now()
+        const timeout = 100
+
+        this.resetParams()
+        this.target = target
+
+        console.log(`Running Genetic Algorithm...`)
+
+        while (this._iterations < timeout){
+            if (this.loss > thresh){
+                this.update()
+            }else{
+                console.log(`Optimal solution found after ${this._iterations} iterations!`)
+                console.log(`Elapsed Time: ${Date.now() - startTime}ms`)
+                return
+            }
+        }
+
+        console.log(`Could not converge in ${timeout} iterations`)
+
     }
 
     // Function passed to population
