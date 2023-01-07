@@ -14,11 +14,12 @@ export class IKSolver3D {
         this._radii = radii
         this._thetas = thetas
         this._origin = origin
-        this._armLength = this._radii.reduce((acc, curr) => acc + curr, 0)
-        this._colliders = colliders
 
+        // constraints
         this._minAngles = minAngles
         this._maxAngles = maxAngles
+        this._armLength = this._radii.reduce((acc, curr) => acc + curr, 0)
+        this._colliders = colliders
 
         // _matrices
         this._matrices = []
