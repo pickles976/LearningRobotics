@@ -120,10 +120,10 @@ export function distanceBetweeen(mat1, mat2) {
 
     let dist = 0
     
-    dist += Math.abs(expected.get([0, 3]) - actual.get([0, 3]))
-    dist += Math.abs(expected.get([1, 3]) - actual.get([1, 3]))
-    dist += Math.abs(expected.get([2, 3]) - actual.get([2, 3]))
-    
+    dist += Math.abs(mat1.get([0, 3]) - mat2.get([0, 3]))
+    dist += Math.abs(mat1.get([1, 3]) - mat2.get([1, 3]))
+    dist += Math.abs(mat1.get([2, 3]) - mat2.get([2, 3]))
+
     return dist
 }
 

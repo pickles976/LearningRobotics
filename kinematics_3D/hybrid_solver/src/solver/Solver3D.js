@@ -1,4 +1,3 @@
-import { findSelfIntersections, isSelfIntersecting } from "../util/CollisionProvider.js"
 import { IDENTITY, mat4, transformLoss } from "../util/Geometry.js"
 import { Solver } from "./Solver.js"
 

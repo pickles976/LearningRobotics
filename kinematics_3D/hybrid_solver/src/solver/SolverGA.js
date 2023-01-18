@@ -1,4 +1,3 @@
-import { findSelfIntersections, isIntersectingObjects, isSelfIntersecting } from "../util/CollisionProvider.js"
 import { Population } from "../util/Genetics.js"
 import { IDENTITY, mat4, transformLoss } from "../util/Geometry.js"
 import { Solver } from "./Solver.js"
@@ -69,7 +68,8 @@ export class IKSolverGA extends Solver {
 
         let totalLoss = super._calculateLoss(actual)
 
-        if (isSelfIntersecting(this._collisionProvider.getColliders(), this.getJoints())) { return PENALTY }
+        // if (isSelfIntersecting(this._collisionProvider.getColliders(), this.getJoints())) { return PENALTY }
+        if (this._collisionProvider.isSelfIntersecting(this.getJoints())) { return PENALTY }
 
         return totalLoss
 
@@ -106,7 +106,8 @@ export class IKSolverGA extends Solver {
         let endEffector = forwardMats[forwardMats.length - 1]
 
         // check self-intersection
-        if (isSelfIntersecting(this._collisionProvider.getColliders(), forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
+        // if (isSelfIntersecting(this._collisionProvider.getColliders(), forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
+        if (this._collisionProvider.isSelfIntersecting(forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
 
         return 1 / transformLoss(endEffector, this.target, this._armLength, this.ROT_CORRECTION)
         

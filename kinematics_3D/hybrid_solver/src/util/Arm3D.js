@@ -1,7 +1,5 @@
 import * as THREE from 'three'
 import { mathToTHREE } from './Geometry.js'
-import { ShapeFromGeometry } from 'SAT'
-import { findSelfIntersections } from './CollisionProvider.js'
 
 const COLORS = {
     'x' : 0xFFAAAA,
@@ -30,6 +28,15 @@ export class Arm3D {
 
         this.drawColliders = true
 
+        this.showCollisionProvider()
+
+    }
+
+    showCollisionProvider() {
+        this._collisionProvider.geometries.forEach((geom) => {
+            // make a mesh
+            this._scene.add(new THREE.Mesh(geom, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } )))
+        })
     }
 
     // Turn a bounding box into a drawable mesh
@@ -158,7 +165,8 @@ export class Arm3D {
     // update the position of the colliders and the collision status
     updateColliders(matrices) {
 
-        this._isColliding = findSelfIntersections(this.collisionProvider.getColliders(), matrices)
+        // this._isColliding = findSelfIntersections(this._collisionProvider.getColliders(), matrices)
+        this._isColliding = this._collisionProvider.findSelfIntersections(matrices);
 
     }
 
