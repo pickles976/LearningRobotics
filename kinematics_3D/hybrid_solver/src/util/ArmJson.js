@@ -9,7 +9,9 @@ export const ArmJson = {
     arm: [
         { 
             link : {
-                length: 1
+                length: 1,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'z',
@@ -19,7 +21,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 4
+                length: 4,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -29,7 +33,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 4
+                length: 4,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -39,7 +45,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 4
+                length: 4,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'z',
@@ -49,7 +57,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 2
+                length: 2,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -59,7 +69,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 4
+                length: 4,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -69,7 +81,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 4
+                length: 4,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -79,7 +93,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 2
+                length: 2,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'y',
@@ -89,7 +105,9 @@ export const ArmJson = {
         },
         { 
             link : {
-                length: 2
+                length: 2,
+                width: 0.5,
+                height: 0.5
             },
             joint : {
                 axis: 'z',

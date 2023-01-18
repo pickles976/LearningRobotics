@@ -1,5 +1,50 @@
-import { CheckCollision, Shape } from 'SAT'
-import { mathToTHREE } from './Geometry.js'
+import * as THREE from 'three'
+import { CheckCollision, Shape, ShapeFromGeometry } from 'SAT'
+import { mathToTHREE, tMat3D } from './Geometry.js'
+
+export class CollisionProvider {
+
+    // x, y, z
+    constructor(lengths, widths, heights) {
+
+        this.colliders = this.generateColliders(lengths, widths, heights)
+
+        console.log(this.colliders)
+    }
+
+    // z, aka, height is the length of the link, kind of confusing, no?
+    generateColliders(lengths, widths, heights) {
+
+        console.assert(lengths.length == widths.length && lengths.length == heights.length)
+
+        let colliders = []
+
+        for (let i = 0; i < lengths.length; i++){
+            let boxGeo = new THREE.BoxGeometry(lengths[i], widths[i], heights[i]);
+            let centroid = tMat3D(0,0,heights[i] / 2)
+            colliders.push(new Collider(ShapeFromGeometry(boxGeo), centroid, lengths[i], widths[i], heights[i]))
+        }
+
+        return colliders
+
+    }
+
+}
+
+class Collider {
+    
+    constructor(shape, centroid, length, width, height) {
+        this.shape = shape
+        this.centroid = centroid
+        this.length = length
+        this.width = width
+        this.height = height
+        this.max = Math.max(length, width, height)
+    }
+
+    
+
+}
 
 /**
  * Finds the indices of the arm which are self-intersecting

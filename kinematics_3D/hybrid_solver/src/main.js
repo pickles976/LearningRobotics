@@ -253,7 +253,8 @@ async function render() {
     solver.update()
 
     if (solver.loss < 0.0001) {
-        console.log(solver._iterations)
+        // console.log(solver._iterations)
+        // console.log(solver)
     }
 
     arm.updateMatrices(solver.getJoints())

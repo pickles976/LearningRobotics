@@ -53,10 +53,10 @@ export class IKSolver3D extends Solver {
             this._thetas[i] -= nudge
             this._momentums[i] = dLoss
             
-            if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) {
-                this._thetas[i] -= nudge
-                this._momentums[i] = dLoss
-            }
+            // if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) {
+            //     this._thetas[i] -= nudge
+            //     this._momentums[i] = dLoss
+            // }
 
         }
 
