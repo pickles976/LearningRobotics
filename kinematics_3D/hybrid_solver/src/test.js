@@ -1,6 +1,7 @@
 import { IKSolver3D } from "./solver/Solver3D.js"
 import { ArmJson } from "./util/ArmJson.js"
 import { CollisionProvider } from "./util/CollisionProvider.js"
+import { IDENTITY } from "./util/Geometry.js"
 
 const THETAS = [0, 0, 0]
 const AXES = ['x', 'x', 'x']
@@ -29,3 +30,4 @@ let LENGTHS = arm.map((element) => element.link.height) // x
 
 let collisionProvider = new CollisionProvider(LENGTHS, WIDTHS, HEIGHTS)
 
+collisionProvider.isIntersecting([IDENTITY, TARGET, IDENTITY, TARGET, IDENTITY, TARGET, IDENTITY, TARGET, IDENTITY])

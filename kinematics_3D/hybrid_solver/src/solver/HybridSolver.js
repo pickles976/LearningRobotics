@@ -8,13 +8,13 @@ export class IKSolverHybrid extends Solver {
     SGD_THRESH = 0.00001
     GA_THRESH = 0.1
 
-    constructor(axes, radii, thetas, origin, minAngles, maxAngles, colliders) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
-        super(axes, radii, thetas, origin, minAngles, maxAngles, colliders)
+        super(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider)
 
         // solvers
-        this._ikSolverSGD = new IKSolver3D(this._axes, this._radii, this._thetas, this._origin, this._minAngles, this._maxAngles, this._colliders)
-        this._ikSolverGA = new IKSolverGA(this._axes, this._radii, this._thetas, this._origin, this._minAngles, this._maxAngles, this._colliders)
+        this._ikSolverSGD = new IKSolver3D(this._axes, this._radii, this._thetas, this._origin, this._minAngles, this._maxAngles, this._collisionProvider)
+        this._ikSolverGA = new IKSolverGA(this._axes, this._radii, this._thetas, this._origin, this._minAngles, this._maxAngles, this._collisionProvider)
 
     }
 

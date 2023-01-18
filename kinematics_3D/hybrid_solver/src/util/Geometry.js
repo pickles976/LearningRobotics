@@ -116,6 +116,17 @@ export function transformLoss(actual, expected, DIST_CORRECTION, ROT_CORRECTION)
     return (errX + errY + errZ + errRot)
 }
 
+export function distanceBetweeen(mat1, mat2) {
+
+    let dist = 0
+    
+    dist += Math.abs(expected.get([0, 3]) - actual.get([0, 3]))
+    dist += Math.abs(expected.get([1, 3]) - actual.get([1, 3]))
+    dist += Math.abs(expected.get([2, 3]) - actual.get([2, 3]))
+    
+    return dist
+}
+
 /**
  * Converts math.js Matrix4 to THREE.js Matrix4
  * @param {math.matrix} in_matrix 

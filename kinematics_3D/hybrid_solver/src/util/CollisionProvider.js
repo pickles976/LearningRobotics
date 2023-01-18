@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { CheckCollision, Shape, ShapeFromGeometry } from 'SAT'
-import { mathToTHREE, tMat3D } from './Geometry.js'
+import { distanceBetweeen, mathToTHREE, tMat3D } from './Geometry.js'
 
 export class CollisionProvider {
 
@@ -29,6 +29,32 @@ export class CollisionProvider {
 
     }
 
+    getColliders() {
+        return this.colliders.map((col) => col.shape);
+    }
+
+    isSelfIntersecting(matrices){
+
+        console.assert(matrices.length == this.colliders.length, "Array lengths do not match!")
+
+        // Transform the centroids of the arm colliders
+        let centroids = this.colliders.map((col, i) => {
+            return col.transformCentroid(matrices[i])
+        })
+
+        for (let i = 0; i < centroids.length; i++) {
+            for (let j = i; i < centroids.length; i++) {
+                if (j - i > 1) {
+                    if (distanceBetweeen(centroids[i], centroids[j]) < (this.colliders[i].max + this.colliders[j].max)) {
+                        if (CheckCollision(this.colliders[i].shape.ApplyMatrix4(matrices[i]), this.colliders[j].shape.ApplyMatrix4(matrices[j]))) {
+                            return true
+                        }
+                    }
+                }   
+            }
+        }
+        
+    }
 }
 
 class Collider {
@@ -42,7 +68,13 @@ class Collider {
         this.max = Math.max(length, width, height)
     }
 
-    
+    transformCentroid(matrix) {
+        return math.multiply(this.centroid, matrix)
+    }
+
+    transformCollider(matrix) {
+        return this.centroid.ApplyMatrix4(mathToTHREE(matrix))
+    }
 
 }
 

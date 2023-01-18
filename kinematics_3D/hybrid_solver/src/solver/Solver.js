@@ -5,7 +5,7 @@ export class Solver {
     ROT_CORRECTION = Math.PI
     MAX_STEPS = 100
 
-    constructor(axes, radii, thetas, origin, minAngles, maxAngles, colliders) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
         
         // physical traits
         this._axes = axes
@@ -17,7 +17,7 @@ export class Solver {
         this._minAngles = minAngles
         this._maxAngles = maxAngles
         this._armLength = this._radii.reduce((acc, curr) => acc + curr, 0)
-        this._colliders = colliders
+        this._collisionProvider = collisionProvider
 
         // _matrices
         this._matrices = []

@@ -68,6 +68,7 @@ export class Arm3D {
             flatShading: true,
         });
     
+        // TODO: load the width values from json
         const geometry = new THREE.CylinderGeometry(0.4, 0.6, length, 12)
         geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link

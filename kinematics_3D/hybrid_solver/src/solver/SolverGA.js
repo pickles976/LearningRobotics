@@ -9,9 +9,9 @@ export class IKSolverGA extends Solver {
 
     ROT_CORRECTION = Math.PI
 
-    constructor(axes, radii, thetas, origin, minAngles, maxAngles, colliders) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
-        super(axes, radii, thetas, origin, minAngles, maxAngles, colliders)
+        super(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider)
 
         this._population = null
 
@@ -69,7 +69,7 @@ export class IKSolverGA extends Solver {
 
         let totalLoss = super._calculateLoss(actual)
 
-        if (isSelfIntersecting(this._colliders, this.getJoints())) { return PENALTY }
+        if (isSelfIntersecting(this._collisionProvider.getColliders(), this.getJoints())) { return PENALTY }
 
         return totalLoss
 
@@ -106,7 +106,7 @@ export class IKSolverGA extends Solver {
         let endEffector = forwardMats[forwardMats.length - 1]
 
         // check self-intersection
-        if (isSelfIntersecting(this._colliders, forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
+        if (isSelfIntersecting(this._collisionProvider.getColliders(), forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
 
         return 1 / transformLoss(endEffector, this.target, this._armLength, this.ROT_CORRECTION)
         

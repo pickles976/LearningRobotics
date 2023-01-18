@@ -5,6 +5,7 @@ import { mathToTHREE, rMat3D, tMat3D } from './util/Geometry.js'
 import { Arm3D } from './util/Arm3D.js'
 import { ArmJson } from './util/ArmJson.js'
 import { IKSolverHybrid } from './Solver/HybridSolver.js'
+import { CollisionProvider } from './util/CollisionProvider.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -22,7 +23,9 @@ const z = 7
 
 let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
-let RADII = []
+let LENGTHS = []
+let WIDTHS = []
+let HEIGHTS = []
 let AXES = []
 let THETAS = []
 let MIN_ANGLES = []
@@ -88,8 +91,9 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    arm = new Arm3D(RADII, AXES, scene)
-    solver = new IKSolverHybrid(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+    collisionProvider = new CollisionProvider(LENGTHS, WIDTHS, HEIGHTS)
+    arm = new Arm3D(LENGTHS, AXES, scene)
+    solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
 
 }
@@ -154,7 +158,9 @@ function initJsonGUI() {
 }
 
 function loadArmFromJSON(json) {
-    RADII = json.arm.map((element) => element.link.length)
+    LENGTHS = json.arm.map((element) => element.link.length) // x
+    WIDTHS = json.arm.map((element) => element.link.width) // y
+    HEIGHTS = json.arm.map((element) => element.link.height) //z 
     AXES = json.arm.map((element) => element.joint.axis)
     MIN_ANGLES = json.arm.map((element) => element.joint.minAngle * Math.PI / 180)
     MAX_ANGLES = json.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
@@ -275,8 +281,9 @@ initJsonGUI()
 initArmGUI()
 createGround()
 
-let arm = new Arm3D(RADII, AXES, scene)
-let solver = new IKSolverHybrid(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let collisionProvider = new CollisionProvider(LENGTHS, WIDTHS, HEIGHTS)
+let arm = new Arm3D(LENGTHS, AXES, scene)
+let solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)
 solver.solve(TARGET)
 
