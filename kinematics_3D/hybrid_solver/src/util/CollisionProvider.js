@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { CheckCollision, Shape, ShapeFromGeometry } from 'SAT'
-import { distanceBetweeen, mathToTHREE, tMat3D } from './Geometry.js'
+import { IDENTITY, distanceBetweeen, mathToTHREE, tMat3D } from './Geometry.js'
 
 export class CollisionProvider {
 
@@ -12,13 +12,16 @@ export class CollisionProvider {
         let widths = arm.map((element) => element.link.width) // y
         let heights = arm.map((element) => element.link.height) //z 
 
-        this.geometries = []
+        this.armGeometries = []
         this.armColliders = []
         
         this.generateArmColliders(lengths, widths, heights)
 
         // World-based stuff
-
+        this.worldGeometries = []
+        this.worldColliders = []
+        this.generateWorldColliders(world)
+        
     }
 
     // z, aka, height is the length of the link, kind of confusing, no?
@@ -31,10 +34,31 @@ export class CollisionProvider {
             boxGeo.translate(0, 0, lengths[i] / 2)
             let centroid = tMat3D(0,0, heights[i] / 2)
 
-            this.geometries.push(boxGeo)
+            this.armGeometries.push(boxGeo)
             this.armColliders.push(new Collider(ShapeFromGeometry(boxGeo), centroid, lengths[i], widths[i], heights[i]))
         }
 
+    }
+
+    generateWorldColliders(world) {
+
+        return world.forEach((mesh) => {
+
+            let box = new THREE.Box3().setFromObject(mesh)
+
+            let length = box.max.x - box.min.x
+            let width = box.max.y - box.min.y
+            let height = box.max.z - box.min.z
+
+            let center = new THREE.Vector3()
+            box.getCenter(center)
+
+            let centroid = tMat3D(center.x, center.y, center.z)
+
+            this.worldGeometries.push(mesh.geometry)
+            this.worldColliders.push(new Collider(ShapeFromGeometry(mesh.geometry), centroid, length, width, height))
+
+        })
     }
 
     /**
@@ -72,6 +96,8 @@ export class CollisionProvider {
                 }   
             }
         }
+
+        return false
         
     }
 
@@ -112,8 +138,85 @@ export class CollisionProvider {
 
     }
 
+    /**
+     * Check if any section of the arm is intersecting an obstacle
+     * @param {Array[matrix]} matrices 
+     * @returns 
+     */
+    isIntersectingObstacles(matrices){
+
+        // Transform the centroids of the arm colliders
+        let armCentroids = this.armColliders.map((col, i) => {
+            return col.transformCentroid(matrices[i])
+        })
+
+        let obstacleCentroids = this.worldColliders.map((col) => {
+            return col.centroid
+        })
+
+        // ((n - 2) ^ 2) / 2
+        // TODO: speedup by sorting centroids in KD or something idk
+        for (let i = 0; i < armCentroids.length; i++) {
+            for (let j = 0; j < obstacleCentroids.length; j++) {
+                if (distanceBetweeen(armCentroids[i], obstacleCentroids[j]) < (this.armColliders[i].max + this.worldColliders[j].max)) {
+                    if (CheckCollision(transformCollider(this.armColliders[i].shape, matrices[i]), transformCollider(this.worldColliders[j].shape, IDENTITY))) {
+                        return true
+                    }
+                } 
+            }
+        }
+
+        return false
+
+    }
+
+    /**
+     * Check if any section of the arm is intersecting an obstacle
+     * @param {Array[matrix]} matrices 
+     * @returns 
+     */
+    findObstacleIntersections(matrices){
+
+        // Transform the centroids of the arm colliders
+        let armCentroids = this.armColliders.map((col, i) => {
+            return col.transformCentroid(matrices[i])
+        })
+
+        let obstacleCentroids = this.worldColliders.map((col) => {
+            return col.centroid
+        })
+
+        let isColliding = new Array(this.armColliders.length)
+
+        for (let i = 0; i < this.armColliders.length; i++){
+            isColliding[i] = false
+        }
+
+        // ((n - 2) ^ 2) / 2
+        // TODO: speedup by sorting centroids in KD or something idk
+        for (let i = 0; i < armCentroids.length; i++) {
+            for (let j = 0; j < obstacleCentroids.length; j++) {
+                if (distanceBetweeen(armCentroids[i], obstacleCentroids[j]) < (this.armColliders[i].max + this.worldColliders[j].max)) {
+                    if (CheckCollision(transformCollider(this.armColliders[i].shape, matrices[i]), transformCollider(this.worldColliders[j].shape, IDENTITY))) {
+                        isColliding[i] = true
+                    }
+                }
+            }
+        }
+
+        return isColliding
+
+    }
+
 }
 
+/**
+ * Collider class holds data used for collision detection
+ * @field shape is a SAT.js mesh implementation used for collision detection
+ * @field centroid is the center of a mesh's bbox
+ * @field max is the max extends of a mesh's bbox 
+ * 
+ */
 class Collider {
     
     constructor(shape, centroid, length, width, height) {

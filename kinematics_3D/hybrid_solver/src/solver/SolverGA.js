@@ -108,6 +108,8 @@ export class IKSolverGA extends Solver {
         // check self-intersection
         // if (isSelfIntersecting(this._collisionProvider.getColliders(), forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
         if (this._collisionProvider.isSelfIntersecting(forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
+        
+        if (this._collisionProvider.isIntersectingObstacles(forwardMats.filter((mat, i) => i > 0))) { return 1 / PENALTY }
 
         return 1 / transformLoss(endEffector, this.target, this._armLength, this.ROT_CORRECTION)
         

@@ -26,11 +26,21 @@ export class Arm3D {
 
         this.drawColliders = true
 
+        this._drawObstacleColliders()
+
+    }
+
+    _drawObstacleColliders() {
+
+        this._collisionProvider.worldGeometries.forEach((obstacle) => {
+            this._scene.add(new THREE.Mesh(obstacle, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } )))
+        })
+
     }
 
     // Create bounding boxes and convert them into meshes
     _createBoxes() {
-        let boxes = this._collisionProvider.geometries.map((geom) => {
+        let boxes = this._collisionProvider.armGeometries.map((geom) => {
             // make a mesh
             return new THREE.Mesh(geom, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
         })
@@ -145,8 +155,11 @@ export class Arm3D {
     // update the position of the colliders and the collision status
     updateCollisionColors(matrices) {
 
-        // this._isColliding = findSelfIntersections(this._collisionProvider.getColliders(), matrices)
-        this._isColliding = this._collisionProvider.findSelfIntersections(matrices);
+        let l1 = this._collisionProvider.findSelfIntersections(matrices)
+        let l2 = this._collisionProvider.findObstacleIntersections(matrices)
+
+        // this._isColliding = this._collisionProvider.findSelfIntersections(matrices);
+        this._isColliding = l1.map((val, j) => val || l2[j])
 
     }
 

@@ -18,7 +18,7 @@ const xRot = 0
 const yRot = 0
 const zRot = 0
 const x = 5
-const y = 5
+const y = 9
 const z = 7
 
 let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
@@ -298,14 +298,12 @@ function generateObstacles() {
     }
 
     let wall1 = makeWall()
-    wall1.translateY(5)
+    wall1.geometry.translate(0, 5, 0)
     obstacles.push(wall1)
     scene.add(wall1)
 
     let wall2 = makeWall()
-    // wall2.translate(0, 5, 4)
-    wall2.translateY(5)
-    wall2.translateZ(8)
+    wall2.geometry.translate(0, 5, 8)
     obstacles.push(wall2)
     scene.add(wall2)
 
