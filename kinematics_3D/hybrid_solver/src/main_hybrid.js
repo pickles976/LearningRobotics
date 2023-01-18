@@ -91,8 +91,8 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(json.arm, {})
-    arm = new Arm3D(LENGTHS, AXES, scene, collisionProvider)
+    collisionProvider = new CollisionProvider(armjson.arm, {})
+    arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
 
@@ -158,15 +158,18 @@ function initJsonGUI() {
 }
 
 function loadArmFromJSON(json) {
-    LENGTHS = json.arm.map((element) => element.link.length) // x
-    WIDTHS = json.arm.map((element) => element.link.width) // y
-    HEIGHTS = json.arm.map((element) => element.link.height) //z 
-    AXES = json.arm.map((element) => element.joint.axis)
-    MIN_ANGLES = json.arm.map((element) => element.joint.minAngle * Math.PI / 180)
-    MAX_ANGLES = json.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
+
+    armjson = json
+
+    LENGTHS = armjson.arm.map((element) => element.link.length) // x
+    WIDTHS = armjson.arm.map((element) => element.link.width) // y
+    HEIGHTS = armjson.arm.map((element) => element.link.height) //z 
+    AXES = armjson.arm.map((element) => element.joint.axis)
+    MIN_ANGLES = armjson.arm.map((element) => element.joint.minAngle * Math.PI / 180)
+    MAX_ANGLES = armjson.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
 
     // Just start in the middle of the constraint values
-    THETAS = json.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
+    THETAS = armjson.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
 }
 
 function createGround() {
@@ -253,6 +256,7 @@ async function render() {
     orbit.update()
 
     arm.updateMatrices(solver.getJoints())
+    // TODO: this needs to be a function separate from getJoints()
     arm.updateBoundingBoxPositions(solver._forwardMats)
     arm.updateCollisionColors(solver._forwardMats)
 
@@ -281,7 +285,7 @@ initArmGUI()
 createGround()
 
 let collisionProvider = new CollisionProvider(armjson.arm, {})
-let arm = new Arm3D(LENGTHS, AXES, scene, collisionProvider)
+let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)
 solver.solve(TARGET)

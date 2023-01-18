@@ -11,13 +11,11 @@ const COLORS = {
 
 export class Arm3D {
 
-    constructor(linkLengths, axes, scene, collisionProvider) {
+    constructor(armjson, scene, collisionProvider) {
 
         this._scene = scene
-        this._linkLengths = linkLengths
-        this._axes = axes
 
-        this.arm = this._createArm(this._linkLengths, this._axes)
+        this.arm = this._createArm(armjson)
 
         // used for detecting and drawing self-intersections
         this._collisionProvider = collisionProvider
@@ -41,7 +39,7 @@ export class Arm3D {
     }
 
     // Create a mesh for a robotic arm Link
-    _createLink(length, axis) {
+    _createLink(length, radius, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
             color: COLORS[axis],
@@ -49,40 +47,44 @@ export class Arm3D {
         });
     
         // TODO: load the width values from json
-        const geometry = new THREE.CylinderGeometry(0.4, 0.6, length, 12)
+        const geometry = new THREE.CylinderGeometry(0.66 * radius, radius, length, 12)
         geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, length / 2) // change transform point to the bottom of the link
         return new THREE.Mesh(geometry, armMat)
     }
 
     // Create a mesh for a robotic arm Base
-    _createBase(length, axis) {
+    _createBase(length, radius, axis) {
 
         const armMat = new THREE.MeshPhongMaterial({
             color: 0xDDDDDD,
             flatShading: true,
         });
     
-        const geometry = new THREE.CylinderGeometry(0.5, 0.75, length, 12)
+        const geometry = new THREE.CylinderGeometry(0.84 * radius, 1.25 * radius, length, 12)
         geometry.rotateX(Math.PI / 2)
         geometry.translate(0, 0, -length / 2) // change transform point to the bottom of the link
         return new THREE.Mesh(geometry, armMat)
     }
 
 
-    _createArm(radii, axes) {
+    _createArm(armjson) {
+
+        let LENGTHS = armjson.arm.map((element) => element.link.length) // x
+        let WIDTHS = armjson.arm.map((element) => element.link.width) // y
+        let AXES = armjson.arm.map((element) => element.joint.axis)
 
         let arm = []
 
         // create base
         let axesHelper = new THREE.AxesHelper(3)
-        axesHelper.add(this._createBase(radii[0], axes[0]))
+        axesHelper.add(this._createBase(LENGTHS[0], WIDTHS[0] / 2, AXES[0]))
         arm.push(axesHelper)
         this._scene.add(axesHelper)
     
         // create arm links/joints
-        for(let i = 1; i < radii.length; i++) {
-            arm[i-1].add(this._createLink(radii[i], axes[i - 1]))
+        for(let i = 1; i < LENGTHS.length; i++) {
+            arm[i-1].add(this._createLink(LENGTHS[i], WIDTHS[0] / 2, AXES[i - 1]))
 
             const axesHelper = new THREE.AxesHelper( 3 );
             this._scene.add(axesHelper)
