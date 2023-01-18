@@ -13,7 +13,7 @@ const COLORS = {
 
 export class Arm3D {
 
-    constructor(linkLengths, axes, scene) {
+    constructor(linkLengths, axes, scene, collisionProvider) {
 
         this._scene = scene
         this._linkLengths = linkLengths
@@ -21,20 +21,15 @@ export class Arm3D {
 
         this.arm = this._createArm(this._linkLengths, this._axes)
 
+        // for drawing bounding boxes around arms
         this._boxHelpers = this._createBoxes()
 
-        this.colliders = this._createColliders()
+        // used for detecting and drawing self-intersections
+        this._collisionProvider = collisionProvider
         this._isColliding = []
 
         this.drawColliders = true
 
-    }
-
-    // Create the actual colliders used for collision detection
-    _createColliders() {
-        return this._boxHelpers.map((box) => {
-            return ShapeFromGeometry(box.geometry)
-        })
     }
 
     // Turn a bounding box into a drawable mesh
@@ -51,7 +46,7 @@ export class Arm3D {
         return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
     }
 
-    // Creat bounding boxes and convert them into meshes
+    // Create bounding boxes and convert them into meshes
     _createBoxes() {
         let boxes = this.arm.filter((link) => link.children[0])
         boxes = boxes.map((obj) => new THREE.Box3().setFromObject(obj.children[obj.children.length - 1]))
@@ -163,7 +158,7 @@ export class Arm3D {
     // update the position of the colliders and the collision status
     updateColliders(matrices) {
 
-        this._isColliding = findSelfIntersections(this.colliders, matrices)
+        this._isColliding = findSelfIntersections(this.collisionProvider.getColliders(), matrices)
 
     }
 
