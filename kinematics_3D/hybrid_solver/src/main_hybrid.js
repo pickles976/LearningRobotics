@@ -31,7 +31,7 @@ let THETAS = []
 let MIN_ANGLES = []
 let MAX_ANGLES = []
 
-let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor
+let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor, obstacles
 
 function drawTarget(matrix) {
 
@@ -91,7 +91,7 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(armjson.arm, {})
+    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
@@ -278,13 +278,47 @@ async function render() {
 
 }
 
+function generateObstacles() {
+
+    obstacles = []
+
+    function makeWall() {
+        const mat = new THREE.MeshPhongMaterial({
+            color: "#999999",
+            flatShading: true,
+        });
+
+        const length = 10
+        const width = 1
+        const height = 4
+
+        const geometry = new THREE.BoxGeometry(length, width, height)
+        geometry.translate(0, 0, height / 2) // change transform point to the bottom of the link
+        return new THREE.Mesh(geometry, mat)
+    }
+
+    let wall1 = makeWall()
+    wall1.translateY(5)
+    obstacles.push(wall1)
+    scene.add(wall1)
+
+    let wall2 = makeWall()
+    // wall2.translate(0, 5, 4)
+    wall2.translateY(5)
+    wall2.translateZ(8)
+    obstacles.push(wall2)
+    scene.add(wall2)
+
+}
+
 init()
 initTargetGUI()
 initJsonGUI()
 initArmGUI()
 createGround()
+generateObstacles()
 
-let collisionProvider = new CollisionProvider(armjson.arm, {})
+let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)

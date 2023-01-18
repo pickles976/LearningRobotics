@@ -26,7 +26,6 @@ export class CollisionProvider {
 
         console.assert(lengths.length == widths.length && lengths.length == heights.length)
 
-
         for (let i = 0; i < lengths.length; i++){
             let boxGeo = new THREE.BoxGeometry(heights[i], widths[i], lengths[i]);
             boxGeo.translate(0, 0, lengths[i] / 2)
