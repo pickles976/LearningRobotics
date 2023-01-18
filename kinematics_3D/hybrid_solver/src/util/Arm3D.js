@@ -19,45 +19,23 @@ export class Arm3D {
 
         this.arm = this._createArm(this._linkLengths, this._axes)
 
-        // for drawing bounding boxes around arms
-        this._boxHelpers = this._createBoxes()
-
         // used for detecting and drawing self-intersections
         this._collisionProvider = collisionProvider
         this._isColliding = []
 
+        // for drawing bounding boxes around arms
+        this._boxHelpers = this._createBoxes()
+
         this.drawColliders = true
 
-        this.showCollisionProvider()
-
-    }
-
-    showCollisionProvider() {
-        this._collisionProvider.geometries.forEach((geom) => {
-            // make a mesh
-            this._scene.add(new THREE.Mesh(geom, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } )))
-        })
-    }
-
-    // Turn a bounding box into a drawable mesh
-    _bbox2Mesh(box) {
-        // make a BoxBufferGeometry of the same size as Box3
-        const dimensions = new THREE.Vector3().subVectors(box.max, box.min )
-        const boxGeo = new THREE.BoxGeometry(dimensions.x, dimensions.y, dimensions.z)
-
-        // move new mesh center so it's aligned with the original object
-        const matrix = new THREE.Matrix4().setPosition(dimensions.addVectors(box.min, box.max).multiplyScalar( 0.5 ))
-        boxGeo.applyMatrix4(matrix)
-
-        // make a mesh
-        return new THREE.Mesh(boxGeo, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
     }
 
     // Create bounding boxes and convert them into meshes
     _createBoxes() {
-        let boxes = this.arm.filter((link) => link.children[0])
-        boxes = boxes.map((obj) => new THREE.Box3().setFromObject(obj.children[obj.children.length - 1]))
-        boxes  = boxes.map((box) => this._bbox2Mesh(box))
+        let boxes = this._collisionProvider.geometries.map((geom) => {
+            // make a mesh
+            return new THREE.Mesh(geom, new THREE.MeshBasicMaterial( { color: 0xFFFF00, wireframe: true } ))
+        })
         boxes.forEach((bh) => this._scene.add(bh))
         return boxes
     }
@@ -136,7 +114,7 @@ export class Arm3D {
     }
 
     // Update bounding boxes for visualizing collision detection/intersection
-    updateBoundingBoxes(matrices) {
+    updateBoundingBoxPositions(matrices) {
 
         // determine whether or not to draw boxes
         this._boxHelpers.forEach((bh) => bh.visible = this.drawColliders)
@@ -163,7 +141,7 @@ export class Arm3D {
     }
 
     // update the position of the colliders and the collision status
-    updateColliders(matrices) {
+    updateCollisionColors(matrices) {
 
         // this._isColliding = findSelfIntersections(this._collisionProvider.getColliders(), matrices)
         this._isColliding = this._collisionProvider.findSelfIntersections(matrices);

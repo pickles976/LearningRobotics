@@ -64,7 +64,7 @@ export class CollisionProvider {
             for (let j = i; j < centroids.length; j++) {
                 if (j - i > 1) {
                     if (distanceBetweeen(centroids[i], centroids[j]) < (this.colliders[i].max + this.colliders[j].max)) {
-                        if (transformCollider(this.colliders[i].shape, matrices[i]), transformCollider(this.colliders[j].shape, matrices[j])) {
+                        if (CheckCollision(transformCollider(this.colliders[i].shape, matrices[i]), transformCollider(this.colliders[j].shape, matrices[j]))) {
                             return true
                         }
                     }
@@ -81,7 +81,7 @@ export class CollisionProvider {
      */
     findSelfIntersections(matrices){
 
-        console.assert(matrices.length == this.colliders.length, "Array lengths do not match!")
+        // console.assert(matrices.length == this.colliders.length, "Array lengths do not match!")
 
         // Transform the centroids of the arm colliders
         let centroids = this.colliders.map((col, i) => {
@@ -98,7 +98,7 @@ export class CollisionProvider {
             for (let j = i; j < centroids.length; j++) {
                 if (j - i > 1) {
                     if (distanceBetweeen(centroids[i], centroids[j]) < (this.colliders[i].max + this.colliders[j].max)) {
-                        if (transformCollider(this.colliders[i].shape, matrices[i]), transformCollider(this.colliders[j].shape, matrices[j])) {
+                        if (CheckCollision(transformCollider(this.colliders[i].shape, matrices[i]), transformCollider(this.colliders[j].shape, matrices[j]))) {
                             isColliding[i] = true
                             isColliding[j] = true
                         }

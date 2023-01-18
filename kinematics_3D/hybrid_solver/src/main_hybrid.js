@@ -253,9 +253,8 @@ async function render() {
     orbit.update()
 
     arm.updateMatrices(solver.getJoints())
-    arm.updateBoundingBoxes(solver.getJoints())
-    arm.updateColliders(solver.getJoints())
-
+    arm.updateBoundingBoxPositions(solver._forwardMats)
+    arm.updateCollisionColors(solver._forwardMats)
 
     // fix buffer size
     if (resizeRendererToDisplaySize(renderer)) {
