@@ -1,3 +1,9 @@
+/**
+ * This file is the testbed for single js solver implementations.
+ * If you want to see how a GA or Jacobian solver runs step-by-step then
+ * use this file.
+ */
+
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
@@ -6,6 +12,7 @@ import { IKSolverGA } from './Solver/SolverGA.js'
 import { mathToTHREE, rMat3D, tMat3D } from './util/Geometry.js'
 import { Arm3D } from './util/Arm3D.js'
 import { ArmJson } from './util/ArmJson.js'
+import { CollisionProvider } from './util/CollisionProvider.js'
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -23,13 +30,15 @@ const z = 7
 
 let TARGET = math.multiply(math.multiply(math.multiply(tMat3D(x,y,z),rMat3D(xRot, 'x')), rMat3D(yRot, 'y')), rMat3D(zRot, 'z'))
 
-let RADII = []
+let LENGTHS = []
+let WIDTHS = []
+let HEIGHTS = []
 let AXES = []
 let THETAS = []
 let MIN_ANGLES = []
 let MAX_ANGLES = []
 
-let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor
+let canvas, renderer, camera, scene, orbit, targetGUI, armGUI, armjson, editor, obstacles
 
 function drawTarget(matrix) {
 
@@ -90,11 +99,10 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    arm = new Arm3D(RADII, AXES, scene)
-    solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    // solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-    solver.target = TARGET
-    solver.resetParams()
+    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+    arm = new Arm3D(armjson, scene, collisionProvider)
+    solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+    solver.solve(TARGET)
 
 }
 
@@ -158,13 +166,18 @@ function initJsonGUI() {
 }
 
 function loadArmFromJSON(json) {
-    RADII = json.arm.map((element) => element.link.length)
-    AXES = json.arm.map((element) => element.joint.axis)
-    MIN_ANGLES = json.arm.map((element) => element.joint.minAngle * Math.PI / 180)
-    MAX_ANGLES = json.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
+
+    armjson = json
+
+    LENGTHS = armjson.arm.map((element) => element.link.length) // x
+    WIDTHS = armjson.arm.map((element) => element.link.width) // y
+    HEIGHTS = armjson.arm.map((element) => element.link.height) //z 
+    AXES = armjson.arm.map((element) => element.joint.axis)
+    MIN_ANGLES = armjson.arm.map((element) => element.joint.minAngle * Math.PI / 180)
+    MAX_ANGLES = armjson.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
 
     // Just start in the middle of the constraint values
-    THETAS = json.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
+    THETAS = armjson.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
 }
 
 function createGround() {
@@ -258,8 +271,9 @@ async function render() {
     }
 
     arm.updateMatrices(solver.getJoints())
-    arm.updateBoundingBoxes(solver.getJoints())
-    arm.updateColliders(solver.getJoints())
+    // TODO: this needs to be a function separate from getJoints()
+    arm.updateBoundingBoxPositions(solver._forwardMats)
+    arm.updateCollisionColors(solver._forwardMats)
 
 
     // fix buffer size
@@ -280,15 +294,48 @@ async function render() {
 
 }
 
+function generateObstacles() {
+
+    obstacles = []
+
+    function makeWall() {
+        const mat = new THREE.MeshPhongMaterial({
+            color: "#999999",
+            flatShading: true,
+        });
+
+        const length = 10
+        const width = 1
+        const height = 4
+
+        const geometry = new THREE.BoxGeometry(length, width, height)
+        geometry.translate(0, 0, height / 2) // change transform point to the bottom of the link
+        return new THREE.Mesh(geometry, mat)
+    }
+
+    let wall1 = makeWall()
+    wall1.geometry.translate(0, 5, 0)
+    obstacles.push(wall1)
+    scene.add(wall1)
+
+    let wall2 = makeWall()
+    wall2.geometry.translate(0, 5, 8)
+    obstacles.push(wall2)
+    scene.add(wall2)
+
+}
+
 init()
 initTargetGUI()
 initJsonGUI()
 initArmGUI()
 createGround()
+generateObstacles()
 
-let arm = new Arm3D(RADII, AXES, scene)
-let solver = new IKSolver3D(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
-// let solver = new IKSolverGA(AXES, RADII, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, arm.colliders)
+let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+let arm = new Arm3D(armjson, scene, collisionProvider)
+let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+// let solver = new IKSolverGA(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initialize()

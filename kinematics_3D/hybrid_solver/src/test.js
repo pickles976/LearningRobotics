@@ -1,3 +1,7 @@
+/**
+ * This file is for testing individual items in isolation like the
+ * CollisionSolver or Matrix methods.
+ */
 import { IKSolver3D } from "./solver/Solver3D.js"
 import { ArmJson } from "./util/ArmJson.js"
 import { CollisionProvider } from "./util/CollisionProvider.js"

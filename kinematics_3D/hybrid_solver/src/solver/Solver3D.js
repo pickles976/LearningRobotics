@@ -40,6 +40,7 @@ export class IKSolver3D extends Solver {
 
             const deltaEndEffector = math.multiply(math.multiply(this._forwardMats[i], dMat), this._backwardMats[i+2])
 
+            // TODO: add jacobian entry for moving away from nearest obstacle and arm self-avoidance
             let dLoss = (this._calculateLoss(deltaEndEffector) - this.loss) / d
             // console.log(`dLoss/dθ: ${dLoss}`)
 

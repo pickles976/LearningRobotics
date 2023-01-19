@@ -1,3 +1,9 @@
+/**
+ * This file is a testbed for the js-based hybrid IK solver.
+ * This should be where the main algorithms and whatnot are first tested
+ * before porting over to Rust for speedups.
+ */
+
 import * as THREE from 'three'
 import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/controls/OrbitControls.js'
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
