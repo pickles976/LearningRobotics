@@ -94,7 +94,7 @@ function updateTarget(controls) {
     target = drawTarget(TARGET)
 
     let start = Date.now();
-    solver.solve(TARGET, 0.000000001)
+    solver.solve(TARGET, 0.000001)
     console.log(`Elapsed time: ${Date.now() - start}`)
 
 }
@@ -108,7 +108,7 @@ function updateArmJSON() {
     arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new WasmSolver(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     // solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
-    solver.solve(TARGET, 0.000000001)
+    solver.solve(TARGET, 0.000001)
 
 }
 
@@ -336,7 +336,7 @@ let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new WasmSolver(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 // let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
-solver.solve(TARGET, 0.000000001)
+solver.solve(TARGET, 0.000001)
 let target = drawTarget(TARGET)
 
 requestAnimationFrame(render)

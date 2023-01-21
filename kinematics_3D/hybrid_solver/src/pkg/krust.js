@@ -124,16 +124,47 @@ function addHeapObject(obj) {
     return idx;
 }
 /**
-* @param {Array<any>} target_array
-* @param {Array<any>} origin_array
-* @param {Array<any>} angles_array
-* @param {Array<any>} axes_array
-* @param {Array<any>} radii_array
-* @returns {Float32Array}
 */
-export function solve_gd(target_array, origin_array, angles_array, axes_array, radii_array) {
-    const ret = wasm.solve_gd(addHeapObject(target_array), addHeapObject(origin_array), addHeapObject(angles_array), addHeapObject(axes_array), addHeapObject(radii_array));
-    return takeObject(ret);
+export class InverseKinematics {
+
+    static __wrap(ptr) {
+        const obj = Object.create(InverseKinematics.prototype);
+        obj.ptr = ptr;
+
+        return obj;
+    }
+
+    __destroy_into_raw() {
+        const ptr = this.ptr;
+        this.ptr = 0;
+
+        return ptr;
+    }
+
+    free() {
+        const ptr = this.__destroy_into_raw();
+        wasm.__wbg_inversekinematics_free(ptr);
+    }
+    /**
+    * @param {Array<any>} origin_array
+    * @param {Array<any>} angles_array
+    * @param {Array<any>} axes_array
+    * @param {Array<any>} radii_array
+    * @returns {InverseKinematics}
+    */
+    static new(origin_array, angles_array, axes_array, radii_array) {
+        const ret = wasm.inversekinematics_new(addHeapObject(origin_array), addHeapObject(angles_array), addHeapObject(axes_array), addHeapObject(radii_array));
+        return InverseKinematics.__wrap(ret);
+    }
+    /**
+    * @param {Array<any>} target_array
+    * @param {number} thresh
+    * @returns {Float32Array}
+    */
+    solve(target_array, thresh) {
+        const ret = wasm.inversekinematics_solve(this.ptr, addHeapObject(target_array), thresh);
+        return takeObject(ret);
+    }
 }
 
 async function load(module, imports) {

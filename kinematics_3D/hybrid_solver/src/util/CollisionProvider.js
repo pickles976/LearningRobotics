@@ -222,9 +222,9 @@ class Collider {
     constructor(shape, centroid, length, width, height) {
         this.shape = shape
         this.centroid = centroid
-        this.length = length
-        this.width = width
-        this.height = height
+        this.length = length // x
+        this.width = width // y
+        this.height = height // z
         this.max = Math.max(length, width, height)
     }
 

@@ -1,17 +1,21 @@
-import { solve_gd } from "../pkg/krust.js";
 import { transformLoss } from "../util/Geometry.js";
 import { Solver } from "./Solver.js";
+import { InverseKinematics } from "../pkg/krust.js";
 
 export class WasmSolver extends Solver {
 
-    constructor(axes, radii, thetas, origin) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
+
         super(axes, radii, thetas, origin)
         super.generateMats()
+
+        // TODO: do something with collision provider
+        this.wasm_solver = InverseKinematics.new(matrixToWasmArray(this._origin), this._thetas, this._axes, this._radii)
     }
 
-    solve(target) {
+    solve(target, thresh) {
         this.target = target
-        this._thetas = solve_gd(matrixToWasmArray(this.target), matrixToWasmArray(this._origin), this._thetas, this._axes, this._radii)
+        this._thetas = this.wasm_solver.solve(matrixToWasmArray(target),  thresh)
         super.generateMats()
         super._calculateLoss(this._endEffector)
     }
