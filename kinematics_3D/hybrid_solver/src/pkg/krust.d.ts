@@ -15,9 +15,9 @@ export class InverseKinematics {
 /**
 * @param {Array<any>} target_array
 * @param {number} thresh
-* @returns {Float32Array}
+* @returns {Float64Array}
 */
-  solve(target_array: Array<any>, thresh: number): Float32Array;
+  solve(target_array: Array<any>, thresh: number): Float64Array;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;

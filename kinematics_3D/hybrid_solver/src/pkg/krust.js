@@ -159,7 +159,7 @@ export class InverseKinematics {
     /**
     * @param {Array<any>} target_array
     * @param {number} thresh
-    * @returns {Float32Array}
+    * @returns {Float64Array}
     */
     solve(target_array, thresh) {
         const ret = wasm.inversekinematics_solve(this.ptr, addHeapObject(target_array), thresh);
@@ -230,12 +230,12 @@ function getImports() {
         const ret = getObject(arg0).buffer;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_newwithbyteoffsetandlength_be22e5fcf4f69ab4 = function(arg0, arg1, arg2) {
-        const ret = new Float32Array(getObject(arg0), arg1 >>> 0, arg2 >>> 0);
+    imports.wbg.__wbg_newwithbyteoffsetandlength_df938956b47e86b3 = function(arg0, arg1, arg2) {
+        const ret = new Float64Array(getObject(arg0), arg1 >>> 0, arg2 >>> 0);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_new_4d6520efe4ca3e24 = function(arg0) {
-        const ret = new Float32Array(getObject(arg0));
+    imports.wbg.__wbg_new_65f43ba3a0141cad = function(arg0) {
+        const ret = new Float64Array(getObject(arg0));
         return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {

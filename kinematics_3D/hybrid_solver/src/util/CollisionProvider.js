@@ -5,12 +5,12 @@ import { IDENTITY, distanceBetweeen, mathToTHREE, tMat3D } from './Geometry.js'
 export class CollisionProvider {
 
     // x, y, z
-    constructor(arm, world) {
+    constructor(armjson, world) {
 
         // Arm-based stuff
-        let lengths = arm.map((element) => element.link.length) // x
-        let widths = arm.map((element) => element.link.width) // y
-        let heights = arm.map((element) => element.link.height) //z 
+        let lengths = armjson.arm.map((element) => element.link.length) // x
+        let widths = armjson.arm.map((element) => element.link.width) // y
+        let heights = armjson.arm.map((element) => element.link.height) //z 
 
         this.armGeometries = []
         this.armColliders = []

@@ -99,7 +99,7 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+    collisionProvider = new CollisionProvider(armjson, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
@@ -264,6 +264,7 @@ async function render() {
     orbit.update()
 
     solver.update()
+    console.log(solver._thetas)
 
     if (solver.loss < 0.0001) {
         // console.log(solver._iterations)
@@ -332,7 +333,7 @@ initArmGUI()
 createGround()
 generateObstacles()
 
-let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+let collisionProvider = new CollisionProvider(armjson, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 // let solver = new IKSolverGA(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
