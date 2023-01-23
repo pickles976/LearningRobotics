@@ -208,6 +208,31 @@ export class CollisionProvider {
 
     }
 
+    dump() {
+
+        let arm_offsets = this.armColliders.map((col) => {
+            let mat = col.centroid._data
+            return [mat[0][3], mat[1][3], mat[2][3]]
+        })
+
+        let arm_half_extents = this.armColliders.map((col) => [col.length / 2, col.width / 2, col.height / 2])
+
+        let world_offsets = this.worldColliders.map((col) => {
+            let mat = col.centroid._data
+            return [mat[0][3], mat[1][3], mat[2][3]]
+        })
+
+        let world_half_extents = this.worldColliders.map((col) => [col.length / 2, col.width / 2, col.height / 2])
+
+        return {
+            arm_offsets,
+            arm_half_extents,
+            world_offsets, 
+            world_half_extents,
+        }
+
+    }
+
 }
 
 /**

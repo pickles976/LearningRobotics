@@ -9,8 +9,15 @@ export class WasmSolver extends Solver {
         super(axes, radii, thetas, origin)
         super.generateMats()
 
-        // TODO: do something with collision provider
-        this.wasm_solver = InverseKinematics.new(matrixToWasmArray(this._origin), this._thetas, this._axes, this._radii)
+        let obj = collisionProvider.dump()
+        let arm_colliders = obj.arm_half_extents;
+        let arm_offsets = obj.arm_offsets;
+        let world_colliders = obj.world_half_extents;
+        let world_offsets = obj.world_offsets;
+
+        this.wasm_solver = InverseKinematics.new(matrixToWasmArray(this._origin), this._thetas, this._axes, this._radii, arm_colliders, arm_offsets, world_colliders, world_offsets)
+        console.log("Created solver")
+    
     }
 
     solve(target, thresh) {
