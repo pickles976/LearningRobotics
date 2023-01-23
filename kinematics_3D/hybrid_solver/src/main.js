@@ -264,7 +264,7 @@ async function render() {
     orbit.update()
 
     solver.update()
-    console.log(solver._thetas)
+    // console.log(solver._thetas)
 
     if (solver.loss < 0.0001) {
         // console.log(solver._iterations)

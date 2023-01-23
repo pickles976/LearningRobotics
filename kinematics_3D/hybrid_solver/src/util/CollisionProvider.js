@@ -139,6 +139,40 @@ export class CollisionProvider {
     }
 
     /**
+     * Finds the indices of the arm which are self-intersecting
+     * @param {Array[matrix]} matrices 
+     * @returns 
+     */
+    findClosestSections(matrices){
+
+        // Transform the centroids of the arm colliders
+        let centroids = this.armColliders.map((col, i) => {
+            return col.transformCentroid(matrices[i])
+        })
+
+        let closest = Number.MAX_VALUE
+        let j1 = -1
+        let j2 = -1
+
+        for (let i = 0; i < centroids.length; i++) {
+            for (let j = i; j < centroids.length; j++) {
+                if (j - i > 1) {
+                    let dist = distanceBetweeen(centroids[i], centroids[j]) 
+
+                    if (dist < closest) {
+                        j1 = i
+                        j2 = j
+                        closest = dist
+                    }
+                }   
+            }
+        }   
+
+        return [j1, j2]
+
+    }
+
+    /**
      * Check if any section of the arm is intersecting an obstacle
      * @param {Array[matrix]} matrices 
      * @returns 
@@ -231,6 +265,14 @@ export class CollisionProvider {
             world_half_extents,
         }
 
+    }
+
+    distance(i, j, matrices) {
+
+        let c1 = this.armColliders[i].transformCentroid(matrices[i])
+        let c2 = this.armColliders[j].transformCentroid(matrices[j])
+
+        return distanceBetweeen(c1, c2) 
     }
 
 }

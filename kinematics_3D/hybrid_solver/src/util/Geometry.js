@@ -147,3 +147,67 @@ export function mathToTHREE(in_matrix) {
     return m.set(...arr)
 
 }
+
+/**
+ * 
+ * @param {*} origin 
+ * @param {*} thetas 
+ * @param {*} axes 
+ * @param {*} radii 
+ * @returns 
+ */
+export function generateMats(origin, thetas, axes, radii) { 
+
+    let matrices = []
+    matrices.push(origin)
+
+    for (let i = 0; i < thetas.length; i++){
+        matrices.push(mat4(thetas[i], axes[i], radii[i]))
+    }
+
+    return matrices
+
+}
+
+/**
+ * generate all the forward partial matrix products
+ * [ O, O x A, O x A x B, O x A x B x C]
+ * @param {*} matrices 
+ * @returns 
+ */
+export function generateForwardMats(matrices) {
+    let forwardMats = []
+    forwardMats.push(matrices[0])
+
+    for (let i = 1; i < matrices.length; i++){
+        forwardMats.push(math.multiply(forwardMats[i - 1], matrices[i]))
+    }
+
+    return forwardMats
+}
+
+/**
+ * generate all the backwards partial matrix products
+ * [E, D x E, C x D x E] -> [C x D x E, D x E, E] + [ I ]
+ * @param {*} matrices 
+ * @returns 
+ */
+export function generateBackwardMats(matrices) {
+    let backwardMats = []
+    backwardMats.push(matrices[matrices.length - 1])
+
+    for (let i = 1; i < matrices.length; i++){
+        backwardMats.push(math.multiply(matrices[matrices.length - i - 1], backwardMats[i - 1]))
+    }
+
+    backwardMats = backwardMats.reverse()
+    backwardMats.push(IDENTITY)
+
+    return backwardMats
+}
+
+export function getJacobian(matrixStart, matrixEnd, d) {
+    let delta = math.subtract(matrixEnd, matrixStart)   
+    let row = [delta.get([0, 3]) / d, delta.get([1, 3]) / d, delta.get([2, 3]) / d]
+    return row
+}
