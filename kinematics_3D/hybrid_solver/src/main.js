@@ -101,7 +101,7 @@ function updateArmJSON() {
     arm.cleanup()
     collisionProvider = new CollisionProvider(armjson, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
-    solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+    solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
 
 }

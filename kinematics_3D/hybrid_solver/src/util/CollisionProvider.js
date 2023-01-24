@@ -76,7 +76,7 @@ export class CollisionProvider {
      */
     isSelfIntersecting(matrices){
 
-        console.assert(matrices.length == this.armColliders.length, "Array lengths do not match!")
+        // console.assert(matrices.length == this.armColliders.length, "Array lengths do not match!")
 
         // Transform the centroids of the arm colliders
         let centroids = this.armColliders.map((col, i) => {
