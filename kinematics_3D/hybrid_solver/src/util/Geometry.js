@@ -206,8 +206,52 @@ export function generateBackwardMats(matrices) {
     return backwardMats
 }
 
-export function getJacobian(matrixStart, matrixEnd, d) {
+/**
+ * Get a column of the jacobian
+ * @param {*} matrixStart 
+ * @param {*} matrixEnd 
+ * @param {*} d 
+ * @returns 
+ */
+export function getJacobianColumn(matrixStart, matrixEnd, d) {
     let delta = math.subtract(matrixEnd, matrixStart)   
-    let row = [delta.get([0, 3]) / d, delta.get([1, 3]) / d, delta.get([2, 3]) / d]
+    let row = math.multiply(getTwistFromMatrix(delta), 1.0 / d)
     return row
+}
+
+export function getTargetVector(desired, current) {
+
+    let desiredTwist = math.matrix(getTwistFromMatrix(desired))
+    let currentTwist = math.matrix(getTwistFromMatrix(current))
+    let vec = math.subtract(desiredTwist, currentTwist)
+
+    return vec
+}
+
+/**
+ * Get a shitty twist coordinate from a matrix
+ * @param {} matrix 
+ * @returns 
+ */
+function getTwistFromMatrix(matrix) {
+
+    let x = matrix.get([0, 3])
+    let y = matrix.get([1, 3])
+    let z = matrix.get([2, 3])
+
+    let rotations = [
+        matrix.get([0, 0]) * 10.0,
+        matrix.get([0, 1]) * 10.0,
+        matrix.get([0, 2]) * 10.0,
+
+        matrix.get([1, 0]) * 10.0,
+        matrix.get([1, 1]) * 10.0,
+        matrix.get([1, 2]) * 10.0,
+
+        matrix.get([2, 0]) * 10.0,
+        matrix.get([2, 1]) * 10.0,
+        matrix.get([2, 2]) * 10.0
+    ]
+
+    return [x,y,z].concat(rotations)
 }

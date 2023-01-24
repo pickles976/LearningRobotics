@@ -1,23 +1,13 @@
-import { IDENTITY, generateForwardMats, generateMats, mat4, transformLoss } from "../util/Geometry.js"
+import { IDENTITY, generateForwardMats, generateMats, getJacobianColumn, getTargetVector, mat4, transformLoss } from "../util/Geometry.js"
 import { Solver } from "./Solver.js"
 
-export class IKSolver3D extends Solver {
+export class IKSolverJC extends Solver {
 
-    PENALTY = 0.00025
     ROT_CORRECTION = Math.PI
-    MAX_DLOSS = 0.5
 
     constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
         super(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider)
-
-        // SGD vars
-        this._learnRate = 0.70
-        this._currentLearnRate = this._learnRate
-        this._decay = 0.000005
-
-        this._momentums = []
-        this._momentumRetain = 0.25
 
     }
 
@@ -31,7 +21,12 @@ export class IKSolver3D extends Solver {
     updateThetas() {
 
         const d = 0.00001
+        let targetVelocity = getTargetVector(this.target, this._endEffector)
+        
+        // TODO: get this analytically
+        let jacobian = []
 
+        // Generate a column of the jacobian matrix
         for (let i = 0; i < this._thetas.length; i++) {
             const dTheta = this._thetas[i] + d
             const radius = this._radii[i]
@@ -40,30 +35,22 @@ export class IKSolver3D extends Solver {
 
             const deltaEndEffector = math.multiply(math.multiply(this._forwardMats[i], dMat), this._backwardMats[i+2])
 
-            // Delta loss
-            let dLoss = (this._calculateLoss(deltaEndEffector) - this.loss) / d
-
-            // console.log(`dLoss/dθ: ${dLoss}`)
-
-            // Clamp dLoss
-            dLoss = Math.max(-this.MAX_DLOSS, Math.min(this.MAX_DLOSS, dLoss))
-
-            const nudge = (this._momentums[i] * this._momentumRetain) + (dLoss * this._learnRate)
-            let newTheta = this._thetas[i] - nudge
-            
-            if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) 
-            {
-                this._thetas[i] -= nudge
-                this._momentums[i] = dLoss
-            }
+            jacobian.push(getJacobianColumn(this._endEffector, deltaEndEffector, d))
 
         }
+
+        jacobian = math.matrix(jacobian)
+        let out = math.multiply(jacobian, targetVelocity)
+        out = math.multiply(out, 0.001)
+        
+        out._data.forEach((_, i) => {
+            this._thetas[i] += out._data[i]
+        });
 
     }
 
     updateParams() {
         super.updateParams()
-        this._currentLearnRate = this._learnRate * (1/ (1+this._decay*this._iterations))
     }
 
     update() {
@@ -108,16 +95,10 @@ export class IKSolver3D extends Solver {
 
     resetParams() {
         super.resetParams()
-        this._currentLearnRate = this._learnRate
         this.initialize()
     }
 
     initialize() {
-        this._momentums = []
-
-        this._thetas.forEach(theta => {
-            this._momentums.push(0.0)
-        })
     }
 
 }
