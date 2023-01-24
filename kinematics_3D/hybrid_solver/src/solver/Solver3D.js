@@ -53,8 +53,21 @@ export class IKSolver3D extends Solver {
             
             if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) 
             {
-                this._thetas[i] -= nudge
-                this._momentums[i] = dLoss
+
+                let newThetas = JSON.parse(JSON.stringify(this._thetas))
+                newThetas[i] = newTheta
+
+                let mats = generateMats(this._origin, newThetas, this._axes, this._radii)
+                let forwardMats = generateForwardMats(mats)
+
+                if (!this._collisionProvider.isSelfIntersecting(forwardMats) && !this._collisionProvider.isIntersectingObstacles(forwardMats))
+                {
+                    this._thetas[i] -= nudge
+                    this._momentums[i] = dLoss
+                } else {
+                    this._thetas[i] += nudge
+                    this._momentums[i] = -dLoss
+                }
             }
 
         }
