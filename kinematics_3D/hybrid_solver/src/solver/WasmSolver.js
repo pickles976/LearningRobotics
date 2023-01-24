@@ -15,14 +15,23 @@ export class WasmSolver extends Solver {
         let world_colliders = obj.world_half_extents;
         let world_offsets = obj.world_offsets;
 
-        this.wasm_solver = InverseKinematics.new(matrixToWasmArray(this._origin), this._thetas, this._axes, this._radii, arm_colliders, arm_offsets, world_colliders, world_offsets)
+        this.wasm_solver = InverseKinematics.new(
+            matrixToWasm(this._origin), 
+            JSON.stringify(this._thetas), 
+            axesToWasm(this._axes), 
+            JSON.stringify(this._radii), 
+            JSON.stringify(arm_colliders), 
+            JSON.stringify(arm_offsets), 
+            JSON.stringify(world_colliders), 
+            JSON.stringify(world_offsets)
+        )
         console.log("Created solver")
     
     }
 
     solve(target, thresh) {
         this.target = target
-        this._thetas = this.wasm_solver.solve(matrixToWasmArray(target),  thresh)
+        this._thetas = JSON.parse(this.wasm_solver.solve(matrixToWasm(target),  thresh))
         super.generateMats()
         super._calculateLoss(this._endEffector)
     }
@@ -34,12 +43,36 @@ export class WasmSolver extends Solver {
 }
 
 // TODO: move this to a WASM util class!
+function axesToWasm(axes) {
+
+    let new_axes = []
+
+    axes.forEach(ax => {
+        switch(ax) {
+            case "x" :
+                new_axes.push([1,0,0])
+                break;
+            case "y" :
+                new_axes.push([0,1,0])
+                break;
+            case "z" :
+                new_axes.push([0,0,1])
+                break;
+            default:
+                new_axes.push([1,0,0])
+                break;
+        }
+    });
+
+    return JSON.stringify(new_axes)
+}
+
 /**
  * Converts a math.matrix object to a WASM-readable array
  * @param {} in_matrix 
  * @returns 
  */
-function matrixToWasmArray(in_matrix) {
+function matrixToWasm(in_matrix) {
     let dim = in_matrix.size()
 
     let arr = []
@@ -50,5 +83,5 @@ function matrixToWasmArray(in_matrix) {
         }
     }
 
-    return arr
+    return JSON.stringify(arr)
 }

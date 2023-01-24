@@ -4,9 +4,11 @@
  */
 import { Arm3D } from './util/Arm3D.js'
 import { ArmJson } from './util/ArmJson.js'
-import { IKSolverHybrid } from './Solver/HybridSolver.js'
+// import { IKSolverHybrid } from './Solver/HybridSolver.js'
+import { WasmSolver } from './Solver/WasmSolver.js'
 import { CollisionProvider } from './util/CollisionProvider.js'
 import * as THREE from 'three'
+import init from "./pkg/krust.js";
 
 const ORIGIN = math.matrix([
     [1, 0, 0, 0],
@@ -15,11 +17,14 @@ const ORIGIN = math.matrix([
     [0, 0, 0, 1]
 ])
 
+const TARGET = math.matrix([
+    [1, 0, 0, 5],
+    [0, 1, 0, 5],
+    [0, 0, 1, 5],
+    [0, 0, 0, 1]
+])
+
 let armjson = ArmJson
-
-// copied from an actual test run
-let THETAS = [1.6165608842843704, -0.46143427543400467, 0.809012100772468, -0.019469167636494276, 1.7568695682192097, 0.9759448225973109, 0.10845480123758768, -1.3190962704639775, -1.7608831199691244, -1.4900014494665197]
-
 let obstacles = []
 let scene = new THREE.Scene()
 
@@ -56,6 +61,7 @@ function generateObstacles() {
 
 generateObstacles()
 
+let THETAS = armjson.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
 let LENGTHS = armjson.arm.map((element) => element.link.length) // x
 let AXES = armjson.arm.map((element) => element.joint.axis)
 let MIN_ANGLES = armjson.arm.map((element) => element.joint.minAngle * Math.PI / 180)
@@ -63,11 +69,10 @@ let MAX_ANGLES = armjson.arm.map((element) => element.joint.maxAngle * Math.PI /
 
 let collisionProvider = new CollisionProvider(armjson, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
-let solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 
-solver.generateMats()
-// console.log(solver)
-// console.log(collisionProvider.findObstacleIntersections(solver._forwardMats))
-console.log(collisionProvider.dump())
+await init() // initialize WASM package
 
-let collisions = [false, false, false, false, false, false, true, true, false, true]
+let solver = new WasmSolver(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+
+solver.solve(TARGET, 0.00001)
+

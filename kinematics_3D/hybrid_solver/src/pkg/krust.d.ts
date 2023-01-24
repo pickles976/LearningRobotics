@@ -5,23 +5,23 @@
 export class InverseKinematics {
   free(): void;
 /**
-* @param {Array<any>} origin_array
-* @param {Array<any>} angles_array
-* @param {Array<any>} axes_array
-* @param {Array<any>} radii_array
-* @param {Array<any>} arm_colliders
-* @param {Array<any>} arm_offsets
-* @param {Array<any>} world_colliders
-* @param {Array<any>} world_offsets
+* @param {string} origin_str
+* @param {string} thetas_str
+* @param {string} axes_str
+* @param {string} radii_str
+* @param {string} arm_colliders
+* @param {string} arm_offsets
+* @param {string} world_colliders
+* @param {string} world_offsets
 * @returns {InverseKinematics}
 */
-  static new(origin_array: Array<any>, angles_array: Array<any>, axes_array: Array<any>, radii_array: Array<any>, arm_colliders: Array<any>, arm_offsets: Array<any>, world_colliders: Array<any>, world_offsets: Array<any>): InverseKinematics;
+  static new(origin_str: string, thetas_str: string, axes_str: string, radii_str: string, arm_colliders: string, arm_offsets: string, world_colliders: string, world_offsets: string): InverseKinematics;
 /**
-* @param {Array<any>} target_array
+* @param {string} target_str
 * @param {number} thresh
-* @returns {Float32Array}
+* @returns {string}
 */
-  solve(target_array: Array<any>, thresh: number): Float32Array;
+  solve(target_str: string, thresh: number): string;
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -29,11 +29,12 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_inversekinematics_free: (a: number) => void;
-  readonly inversekinematics_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => number;
-  readonly inversekinematics_solve: (a: number, b: number, c: number) => number;
+  readonly inversekinematics_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number) => number;
+  readonly inversekinematics_solve: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly __wbindgen_export_0: (a: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => number;
-  readonly __wbindgen_export_2: (a: number) => void;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly __wbindgen_export_2: (a: number, b: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
