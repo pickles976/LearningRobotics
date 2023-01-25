@@ -70,6 +70,7 @@ export class IKSolverGA extends Solver {
 
         // if (isSelfIntersecting(this._collisionProvider.getColliders(), this.getJoints())) { return PENALTY }
         if (this._collisionProvider.isSelfIntersecting(this.getJoints())) { return PENALTY }
+        if (this._collisionProvider.isIntersectingObstacles(this.getJoints())) { return PENALTY }
 
         return totalLoss
 
