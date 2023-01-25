@@ -104,34 +104,13 @@ export class InverseKinematics {
         wasm.__wbg_inversekinematics_free(ptr);
     }
     /**
-    * @param {string} origin_str
-    * @param {string} thetas_str
-    * @param {string} axes_str
-    * @param {string} radii_str
-    * @param {string} arm_colliders
-    * @param {string} arm_offsets
-    * @param {string} world_colliders
-    * @param {string} world_offsets
+    * @param {string} field_str
     * @returns {InverseKinematics}
     */
-    static new(origin_str, thetas_str, axes_str, radii_str, arm_colliders, arm_offsets, world_colliders, world_offsets) {
-        const ptr0 = passStringToWasm0(origin_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
+    static new(field_str) {
+        const ptr0 = passStringToWasm0(field_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
         const len0 = WASM_VECTOR_LEN;
-        const ptr1 = passStringToWasm0(thetas_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len1 = WASM_VECTOR_LEN;
-        const ptr2 = passStringToWasm0(axes_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len2 = WASM_VECTOR_LEN;
-        const ptr3 = passStringToWasm0(radii_str, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len3 = WASM_VECTOR_LEN;
-        const ptr4 = passStringToWasm0(arm_colliders, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len4 = WASM_VECTOR_LEN;
-        const ptr5 = passStringToWasm0(arm_offsets, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len5 = WASM_VECTOR_LEN;
-        const ptr6 = passStringToWasm0(world_colliders, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len6 = WASM_VECTOR_LEN;
-        const ptr7 = passStringToWasm0(world_offsets, wasm.__wbindgen_export_0, wasm.__wbindgen_export_1);
-        const len7 = WASM_VECTOR_LEN;
-        const ret = wasm.inversekinematics_new(ptr0, len0, ptr1, len1, ptr2, len2, ptr3, len3, ptr4, len4, ptr5, len5, ptr6, len6, ptr7, len7);
+        const ret = wasm.inversekinematics_new(ptr0, len0);
         return InverseKinematics.__wrap(ret);
     }
     /**
@@ -189,6 +168,9 @@ async function load(module, imports) {
 function getImports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg_alert_76aa477fc0f66826 = function(arg0, arg1) {
+        alert(getStringFromWasm0(arg0, arg1));
+    };
     imports.wbg.__wbindgen_throw = function(arg0, arg1) {
         throw new Error(getStringFromWasm0(arg0, arg1));
     };

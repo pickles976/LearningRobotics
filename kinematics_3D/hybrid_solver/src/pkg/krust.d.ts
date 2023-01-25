@@ -5,17 +5,10 @@
 export class InverseKinematics {
   free(): void;
 /**
-* @param {string} origin_str
-* @param {string} thetas_str
-* @param {string} axes_str
-* @param {string} radii_str
-* @param {string} arm_colliders
-* @param {string} arm_offsets
-* @param {string} world_colliders
-* @param {string} world_offsets
+* @param {string} field_str
 * @returns {InverseKinematics}
 */
-  static new(origin_str: string, thetas_str: string, axes_str: string, radii_str: string, arm_colliders: string, arm_offsets: string, world_colliders: string, world_offsets: string): InverseKinematics;
+  static new(field_str: string): InverseKinematics;
 /**
 * @param {string} target_str
 * @param {number} thresh
@@ -29,7 +22,7 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly __wbg_inversekinematics_free: (a: number) => void;
-  readonly inversekinematics_new: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number, i: number, j: number, k: number, l: number, m: number, n: number, o: number, p: number) => number;
+  readonly inversekinematics_new: (a: number, b: number) => number;
   readonly inversekinematics_solve: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly __wbindgen_export_0: (a: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => number;

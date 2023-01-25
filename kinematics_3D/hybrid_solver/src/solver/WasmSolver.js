@@ -6,32 +6,31 @@ export class WasmSolver extends Solver {
 
     constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
-        super(axes, radii, thetas, origin)
+        super(axes, radii, thetas, origin, minAngles, maxAngles)
         super.generateMats()
 
-        let obj = collisionProvider.dump()
-        let arm_colliders = obj.arm_half_extents;
-        let arm_offsets = obj.arm_offsets;
-        let world_colliders = obj.world_half_extents;
-        let world_offsets = obj.world_offsets;
+        // Create struct for serialization
+        let fields = {
+            origin: matrixToWasm(this._origin), 
+            thetas : this._thetas, 
+            axes : axesToWasm(this._axes), 
+            radii : this._radii, 
 
-        this.wasm_solver = InverseKinematics.new(
-            matrixToWasm(this._origin), 
-            JSON.stringify(this._thetas), 
-            axesToWasm(this._axes), 
-            JSON.stringify(this._radii), 
-            JSON.stringify(arm_colliders), 
-            JSON.stringify(arm_offsets), 
-            JSON.stringify(world_colliders), 
-            JSON.stringify(world_offsets)
-        )
+            min_angles: this._minAngles,
+            max_angles: this._maxAngles,
+            ...collisionProvider.dump()
+        }
+
+        console.log(fields)
+
+        this.wasm_solver = InverseKinematics.new(JSON.stringify(fields))
         console.log("Created solver")
     
     }
 
     solve(target, thresh) {
         this.target = target
-        this._thetas = JSON.parse(this.wasm_solver.solve(matrixToWasm(target),  thresh))
+        this._thetas = JSON.parse(this.wasm_solver.solve(JSON.stringify(matrixToWasm(target)),  thresh))
         super.generateMats()
         super._calculateLoss(this._endEffector)
     }
@@ -64,7 +63,7 @@ function axesToWasm(axes) {
         }
     });
 
-    return JSON.stringify(new_axes)
+    return new_axes
 }
 
 /**
@@ -83,5 +82,5 @@ function matrixToWasm(in_matrix) {
         }
     }
 
-    return JSON.stringify(arr)
+    return arr
 }
