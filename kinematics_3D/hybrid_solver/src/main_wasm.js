@@ -269,6 +269,10 @@ async function render() {
 
     orbit.update()
 
+    if (solver.loss > 0.000001) {
+        solver.solve(TARGET, 0.000001)
+    }
+
     // console.log(solver.getJoints())
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxPositions(solver._forwardMats)
@@ -313,12 +317,12 @@ function generateObstacles() {
     }
 
     let wall1 = makeWall()
-    wall1.geometry.translate(0, 5, 0)
+    wall1.geometry.translate(0, 7.5, 0)
     obstacles.push(wall1)
     scene.add(wall1)
 
     let wall2 = makeWall()
-    wall2.geometry.translate(0, 5, 8)
+    wall2.geometry.translate(0, 7.5, 8)
     obstacles.push(wall2)
     scene.add(wall2)
 
