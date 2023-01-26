@@ -13,8 +13,6 @@ import { ArmJson } from './util/ArmJson.js'
 import { CollisionProvider } from './util/CollisionProvider.js'
 
 import { WasmSolver } from "./solver/WasmSolver.js"
-import { IKSolver3D } from "./solver/Solver3D.js"
-import { IDENTITY } from "./util/Geometry.js"
 import init from "./pkg/krust.js";
 
 const ORIGIN = math.matrix([
