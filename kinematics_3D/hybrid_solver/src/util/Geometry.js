@@ -239,19 +239,91 @@ function getTwistFromMatrix(matrix) {
     let y = matrix.get([1, 3])
     let z = matrix.get([2, 3])
 
-    let rotations = [
-        matrix.get([0, 0]) * 10.0,
-        matrix.get([0, 1]) * 10.0,
-        matrix.get([0, 2]) * 10.0,
+    // console.log(matrix)
+    let angular = new Quaternion()
+    angular.fromMatrix(matrix)
+    let axAngle = angular.toAxisAngle()
 
-        matrix.get([1, 0]) * 10.0,
-        matrix.get([1, 1]) * 10.0,
-        matrix.get([1, 2]) * 10.0,
+    // console.log(axAngle)
 
-        matrix.get([2, 0]) * 10.0,
-        matrix.get([2, 1]) * 10.0,
-        matrix.get([2, 2]) * 10.0
-    ]
+    return [x,y,z].concat(axAngle)
+}
 
-    return [x,y,z].concat(rotations)
+class Quaternion {
+
+    constructor() {
+    }
+
+    // NaN safe!!!
+    fromMatrix(matrix) {
+
+        const pad = 0.0001
+
+        let m00 = matrix.get([0, 0]) + pad
+        let m01 = matrix.get([0, 1])
+        let m02 = matrix.get([0, 2])
+        let m10 = matrix.get([1, 0])
+        let m11 = matrix.get([1, 1])
+        let m12 = matrix.get([1, 2])
+        let m20 = matrix.get([2, 0])
+        let m21 = matrix.get([2, 1])
+        let m22 = matrix.get([2, 2])
+
+        let tr = m00 + m11 + m22
+
+        let S, qw, qx, qy, qz
+
+        if (tr > 0) { 
+            S = Math.sqrt(tr+1.0) * 2; // S=4*qw 
+            qw = 0.25 * S;
+            qx = (m21 - m12) / S;
+            qy = (m02 - m20) / S; 
+            qz = (m10 - m01) / S; 
+        } else if ((m00 > m11)&(m00 > m22)) { 
+            S = Math.sqrt(1.0 + m00 - m11 - m22) * 2; // S=4*qx 
+            qw = (m21 - m12) / S;
+            qx = 0.25 * S;
+            qy = (m01 + m10) / S; 
+            qz = (m02 + m20) / S; 
+        } else if (m11 > m22) { 
+            S = Math.sqrt(1.0 + m11 - m00 - m22) * 2; // S=4*qy
+            qw = (m02 - m20) / S;
+            qx = (m01 + m10) / S; 
+            qy = 0.25 * S;
+            qz = (m12 + m21) / S; 
+        } else { 
+            S = Math.sqrt(1.0 + m22 - m00 - m11) * 2; // S=4*qz
+            qw = (m10 - m01) / S;
+            qx = (m02 + m20) / S;
+            qy = (m12 + m21) / S;
+            qz = 0.25 * S;
+        }
+
+        this.qw = qw
+        this.qx = qx
+        this.qy = qy
+        this.qz = qz
+    }
+
+    toAxisAngle() {
+
+        if (this.qw > 1) {
+            this.qw /= this.qw; // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
+        }
+
+        let x, y, z
+        let angle = 2 * Math.acos(this.qw) * 10.0;
+        let s = Math.sqrt(1-this.qw*this.qw);
+        if (s < 0.001) {
+            x = this.qx;
+            y = this.qy;
+            z = this.qz;
+        } else {
+            x = this.qx / s;
+            y = this.qy / s;
+            z = this.qz / s;
+        }
+
+        return [x * angle, y * angle, z * angle]
+    }
 }

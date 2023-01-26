@@ -1,3 +1,5 @@
-1. Find the closest points
-2. Find the vector pointing away from each other
-3. 
+- [x] Build the twist vector
+- [ ] Calculate Transpose Jacobian
+- [ ] Calculate PseudoInverse Jacobian
+- [ ] Calculate Jacobian for obstacle avoidance
+- [ ] Apply gradient descent to values

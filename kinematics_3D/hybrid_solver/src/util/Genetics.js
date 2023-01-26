@@ -30,7 +30,6 @@ export class Gene {
     mutate() {
         for (let i = 0; i < this.thetas.length; i++) {
             if (Math.random() < this.controls.mutationRate) {
-                // this.thetas[i] += Math.min(1.0, Math.pow(this.learnRate / 5, 2)) * Math.PI * (Math.random() - 0.5) // account for threshold
                 this.thetas[i] += MUTATION_SIZE * Math.PI * (Math.random() - 0.5) // account for threshold
                 this.thetas[i] = Math.min(this.controls.maxAngles[i], Math.max(this.controls.minAngles[i], this.thetas[i])) // clamp to constraints
             }
