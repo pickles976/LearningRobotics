@@ -2,9 +2,9 @@ import { IDENTITY, generateForwardMats, generateMats, getJacobianColumn, getTarg
 import { Solver } from "./Solver.js"
 
 /**
- * A solver using the Jacobian Transpose method
+ * A solver using the Jacobian Pseudoinverse method
  */
-export class IKSolverJC extends Solver {
+export class IKSolverJCP extends Solver {
 
     ROT_CORRECTION = Math.PI
 
@@ -43,11 +43,17 @@ export class IKSolverJC extends Solver {
         }
 
         jacobian = math.matrix(jacobian)
+        jacobian = math.pinv(math.transpose(jacobian))
+        console.log(jacobian)
         let out = math.multiply(jacobian, targetVelocity)
-        out = math.multiply(out, 0.001)
+        out = math.multiply(out, 0.01)
         
         out._data.forEach((_, i) => {
+
             this._thetas[i] += out._data[i]
+            // if (out._data[i] > this._minAngles[i] && out._data[i] < this._maxAngles[i]){
+            //     this._thetas[i] += out._data[i]
+            // }
         });
 
     }

@@ -229,7 +229,7 @@ export function getTargetVector(desired, current) {
 }
 
 /**
- * Get a shitty twist coordinate from a matrix
+ * Get a shitty twist coordinate from a matrix :P
  * @param {} matrix 
  * @returns 
  */
@@ -312,7 +312,9 @@ class Quaternion {
         }
 
         let x, y, z
-        let angle = 2 * Math.acos(this.qw) * 10.0;
+        let angle = 2 * Math.acos(this.qw);
+        // console.log(angle)
+
         let s = Math.sqrt(1-this.qw*this.qw);
         if (s < 0.001) {
             x = this.qx;
