@@ -5,12 +5,12 @@ import { IDENTITY, distanceBetweeen, mathToTHREE, tMat3D } from './Geometry.js'
 export class CollisionProvider {
 
     // x, y, z
-    constructor(arm, world) {
+    constructor(armjson, world) {
 
         // Arm-based stuff
-        let lengths = arm.map((element) => element.link.length) // x
-        let widths = arm.map((element) => element.link.width) // y
-        let heights = arm.map((element) => element.link.height) //z 
+        let lengths = armjson.arm.map((element) => element.link.length) // x
+        let widths = armjson.arm.map((element) => element.link.width) // y
+        let heights = armjson.arm.map((element) => element.link.height) //z 
 
         this.armGeometries = []
         this.armColliders = []
@@ -76,7 +76,7 @@ export class CollisionProvider {
      */
     isSelfIntersecting(matrices){
 
-        console.assert(matrices.length == this.armColliders.length, "Array lengths do not match!")
+        // console.assert(matrices.length == this.armColliders.length, "Array lengths do not match!")
 
         // Transform the centroids of the arm colliders
         let centroids = this.armColliders.map((col, i) => {
@@ -135,6 +135,40 @@ export class CollisionProvider {
         }   
 
         return isColliding
+
+    }
+
+    /**
+     * Finds the indices of the arm which are self-intersecting
+     * @param {Array[matrix]} matrices 
+     * @returns 
+     */
+    findClosestSections(matrices){
+
+        // Transform the centroids of the arm colliders
+        let centroids = this.armColliders.map((col, i) => {
+            return col.transformCentroid(matrices[i])
+        })
+
+        let closest = Number.MAX_VALUE
+        let j1 = -1
+        let j2 = -1
+
+        for (let i = 0; i < centroids.length; i++) {
+            for (let j = i; j < centroids.length; j++) {
+                if (j - i > 1) {
+                    let dist = distanceBetweeen(centroids[i], centroids[j]) 
+
+                    if (dist < closest) {
+                        j1 = i
+                        j2 = j
+                        closest = dist
+                    }
+                }   
+            }
+        }   
+
+        return [j1, j2]
 
     }
 
@@ -208,6 +242,39 @@ export class CollisionProvider {
 
     }
 
+    dump() {
+
+        let arm_offsets = this.armColliders.map((col) => {
+            let mat = col.centroid._data
+            return [mat[0][3], mat[1][3], mat[2][3]]
+        })
+
+        let arm_half_extents = this.armColliders.map((col) => [col.length / 2, col.width / 2, col.height / 2])
+
+        let world_offsets = this.worldColliders.map((col) => {
+            let mat = col.centroid._data
+            return [mat[0][3], mat[1][3], mat[2][3]]
+        })
+
+        let world_half_extents = this.worldColliders.map((col) => [col.length / 2, col.width / 2, col.height / 2])
+
+        return {
+            arm_offsets,
+            arm_half_extents,
+            world_offsets, 
+            world_half_extents,
+        }
+
+    }
+
+    distance(i, j, matrices) {
+
+        let c1 = this.armColliders[i].transformCentroid(matrices[i])
+        let c2 = this.armColliders[j].transformCentroid(matrices[j])
+
+        return distanceBetweeen(c1, c2) 
+    }
+
 }
 
 /**
@@ -222,9 +289,9 @@ class Collider {
     constructor(shape, centroid, length, width, height) {
         this.shape = shape
         this.centroid = centroid
-        this.length = length
-        this.width = width
-        this.height = height
+        this.length = length // x
+        this.width = width // y
+        this.height = height // z
         this.max = Math.max(length, width, height)
     }
 

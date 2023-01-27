@@ -13,8 +13,6 @@ import { ArmJson } from './util/ArmJson.js'
 import { CollisionProvider } from './util/CollisionProvider.js'
 
 import { WasmSolver } from "./solver/WasmSolver.js"
-import { IKSolver3D } from "./solver/Solver3D.js"
-import { IDENTITY } from "./util/Geometry.js"
 import init from "./pkg/krust.js";
 
 const ORIGIN = math.matrix([
@@ -94,7 +92,7 @@ function updateTarget(controls) {
     target = drawTarget(TARGET)
 
     let start = Date.now();
-    solver.solve(TARGET, 0.000000001)
+    solver.solve(TARGET, 0.000001)
     console.log(`Elapsed time: ${Date.now() - start}`)
 
 }
@@ -104,11 +102,11 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+    collisionProvider = new CollisionProvider(armjson, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new WasmSolver(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     // solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
-    solver.solve(TARGET, 0.000000001)
+    solver.solve(TARGET, 0.000001)
 
 }
 
@@ -269,6 +267,10 @@ async function render() {
 
     orbit.update()
 
+    if (solver.loss > 0.000001) {
+        solver.solve(TARGET, 0.000001)
+    }
+
     // console.log(solver.getJoints())
     arm.updateMatrices(solver.getJoints())
     arm.updateBoundingBoxPositions(solver._forwardMats)
@@ -313,12 +315,12 @@ function generateObstacles() {
     }
 
     let wall1 = makeWall()
-    wall1.geometry.translate(0, 5, 0)
+    wall1.geometry.translate(0, 7.5, 0)
     obstacles.push(wall1)
     scene.add(wall1)
 
     let wall2 = makeWall()
-    wall2.geometry.translate(0, 5, 8)
+    wall2.geometry.translate(0, 7.5, 8)
     obstacles.push(wall2)
     scene.add(wall2)
 
@@ -332,11 +334,11 @@ initArmGUI()
 createGround()
 generateObstacles()
 
-let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+let collisionProvider = new CollisionProvider(armjson, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new WasmSolver(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 // let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
-solver.solve(TARGET, 0.000000001)
+solver.solve(TARGET, 0.000001)
 let target = drawTarget(TARGET)
 
 requestAnimationFrame(render)

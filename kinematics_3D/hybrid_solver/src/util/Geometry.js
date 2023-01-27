@@ -147,3 +147,185 @@ export function mathToTHREE(in_matrix) {
     return m.set(...arr)
 
 }
+
+/**
+ * 
+ * @param {*} origin 
+ * @param {*} thetas 
+ * @param {*} axes 
+ * @param {*} radii 
+ * @returns 
+ */
+export function generateMats(origin, thetas, axes, radii) { 
+
+    let matrices = []
+    matrices.push(origin)
+
+    for (let i = 0; i < thetas.length; i++){
+        matrices.push(mat4(thetas[i], axes[i], radii[i]))
+    }
+
+    return matrices
+
+}
+
+/**
+ * generate all the forward partial matrix products
+ * [ O, O x A, O x A x B, O x A x B x C]
+ * @param {*} matrices 
+ * @returns 
+ */
+export function generateForwardMats(matrices) {
+    let forwardMats = []
+    forwardMats.push(matrices[0])
+
+    for (let i = 1; i < matrices.length; i++){
+        forwardMats.push(math.multiply(forwardMats[i - 1], matrices[i]))
+    }
+
+    return forwardMats
+}
+
+/**
+ * generate all the backwards partial matrix products
+ * [E, D x E, C x D x E] -> [C x D x E, D x E, E] + [ I ]
+ * @param {*} matrices 
+ * @returns 
+ */
+export function generateBackwardMats(matrices) {
+    let backwardMats = []
+    backwardMats.push(matrices[matrices.length - 1])
+
+    for (let i = 1; i < matrices.length; i++){
+        backwardMats.push(math.multiply(matrices[matrices.length - i - 1], backwardMats[i - 1]))
+    }
+
+    backwardMats = backwardMats.reverse()
+    backwardMats.push(IDENTITY)
+
+    return backwardMats
+}
+
+/**
+ * Get a column of the jacobian
+ * @param {*} matrixStart 
+ * @param {*} matrixEnd 
+ * @param {*} d 
+ * @returns 
+ */
+export function getJacobianColumn(matrixStart, matrixEnd, d) {
+    let delta = math.subtract(matrixEnd, matrixStart)   
+    let row = math.multiply(getTwistFromMatrix(delta), 1.0 / d)
+    return row
+}
+
+export function getTargetVector(desired, current) {
+
+    let desiredTwist = math.matrix(getTwistFromMatrix(desired))
+    let currentTwist = math.matrix(getTwistFromMatrix(current))
+    let vec = math.subtract(desiredTwist, currentTwist)
+
+    return vec
+}
+
+/**
+ * Get a shitty twist coordinate from a matrix :P
+ * @param {} matrix 
+ * @returns 
+ */
+function getTwistFromMatrix(matrix) {
+
+    let x = matrix.get([0, 3])
+    let y = matrix.get([1, 3])
+    let z = matrix.get([2, 3])
+
+    // console.log(matrix)
+    let angular = new Quaternion()
+    angular.fromMatrix(matrix)
+    let axAngle = angular.toAxisAngle()
+
+    // console.log(axAngle)
+
+    return [x,y,z].concat(axAngle)
+}
+
+class Quaternion {
+
+    constructor() {
+    }
+
+    // NaN safe!!!
+    fromMatrix(matrix) {
+
+        const pad = 0.0001
+
+        let m00 = matrix.get([0, 0]) + pad
+        let m01 = matrix.get([0, 1])
+        let m02 = matrix.get([0, 2])
+        let m10 = matrix.get([1, 0])
+        let m11 = matrix.get([1, 1])
+        let m12 = matrix.get([1, 2])
+        let m20 = matrix.get([2, 0])
+        let m21 = matrix.get([2, 1])
+        let m22 = matrix.get([2, 2])
+
+        let tr = m00 + m11 + m22
+
+        let S, qw, qx, qy, qz
+
+        if (tr > 0) { 
+            S = Math.sqrt(tr+1.0) * 2; // S=4*qw 
+            qw = 0.25 * S;
+            qx = (m21 - m12) / S;
+            qy = (m02 - m20) / S; 
+            qz = (m10 - m01) / S; 
+        } else if ((m00 > m11)&(m00 > m22)) { 
+            S = Math.sqrt(1.0 + m00 - m11 - m22) * 2; // S=4*qx 
+            qw = (m21 - m12) / S;
+            qx = 0.25 * S;
+            qy = (m01 + m10) / S; 
+            qz = (m02 + m20) / S; 
+        } else if (m11 > m22) { 
+            S = Math.sqrt(1.0 + m11 - m00 - m22) * 2; // S=4*qy
+            qw = (m02 - m20) / S;
+            qx = (m01 + m10) / S; 
+            qy = 0.25 * S;
+            qz = (m12 + m21) / S; 
+        } else { 
+            S = Math.sqrt(1.0 + m22 - m00 - m11) * 2; // S=4*qz
+            qw = (m10 - m01) / S;
+            qx = (m02 + m20) / S;
+            qy = (m12 + m21) / S;
+            qz = 0.25 * S;
+        }
+
+        this.qw = qw
+        this.qx = qx
+        this.qy = qy
+        this.qz = qz
+    }
+
+    toAxisAngle() {
+
+        if (this.qw > 1) {
+            this.qw /= this.qw; // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
+        }
+
+        let x, y, z
+        let angle = 2 * Math.acos(this.qw);
+        // console.log(angle)
+
+        let s = Math.sqrt(1-this.qw*this.qw);
+        if (s < 0.001) {
+            x = this.qx;
+            y = this.qy;
+            z = this.qz;
+        } else {
+            x = this.qx / s;
+            y = this.qy / s;
+            z = this.qz / s;
+        }
+
+        return [x * angle, y * angle, z * angle]
+    }
+}

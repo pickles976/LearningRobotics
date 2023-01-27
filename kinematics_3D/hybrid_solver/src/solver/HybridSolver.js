@@ -6,7 +6,7 @@ import { IKSolverGA } from "./SolverGA.js"
 export class IKSolverHybrid extends Solver {
 
     SGD_THRESH = 0.00001
-    GA_THRESH = 0.1
+    GA_THRESH = 0.01
 
     constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
@@ -28,13 +28,21 @@ export class IKSolverHybrid extends Solver {
 
         console.log(`Running hybrid solver...`)
 
-        // rough solution via GA
-         this._ikSolverGA.solve(target, this.GA_THRESH)
-
-        // Fine-tune with SGD
-        this._ikSolverSGD._thetas = this._ikSolverGA._thetas 
+        // Start with SGD
         this._ikSolverSGD.solve(target, this.SGD_THRESH)
-        this._thetas = this._ikSolverSGD._thetas
+
+        if (this._ikSolverSGD.loss > this.SGD_THRESH) {
+
+            // find rough solution with GA
+            this._ikSolverGA.thetas = this._ikSolverSGD.thetas
+            this._ikSolverGA.solve(target, this.GA_THRESH)
+
+            // Fine-tune with SGD
+            this._ikSolverSGD._thetas = this._ikSolverGA._thetas 
+            this._ikSolverSGD.solve(target, this.SGD_THRESH)
+            this._thetas = this._ikSolverSGD._thetas
+
+        }
 
         // generate matrices
         this.generateMats()

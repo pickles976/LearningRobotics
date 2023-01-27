@@ -9,6 +9,8 @@ import { MapControls } from 'https://unpkg.com/three@0.146.0/examples/jsm/contro
 import { GUI } from 'https://unpkg.com/three@0.146.0/examples/jsm/libs/lil-gui.module.min.js'
 import { IKSolver3D } from './Solver/Solver3D.js'
 import { IKSolverGA } from './Solver/SolverGA.js'
+import { IKSolverJC } from './Solver/SolverJC.js'
+import { IKSolverJCP } from './Solver/SolverJCP.js'
 import { mathToTHREE, rMat3D, tMat3D } from './util/Geometry.js'
 import { Arm3D } from './util/Arm3D.js'
 import { ArmJson } from './util/ArmJson.js'
@@ -99,9 +101,11 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+    collisionProvider = new CollisionProvider(armjson, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
-    solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+    // solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+    // solver = new IKSolverGA(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+    solver = new IKSolverJCP(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
 
 }
@@ -177,7 +181,8 @@ function loadArmFromJSON(json) {
     MAX_ANGLES = armjson.arm.map((element) => element.joint.maxAngle * Math.PI / 180)
 
     // Just start in the middle of the constraint values
-    THETAS = armjson.arm.map((element) => (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
+    THETAS = armjson.arm.map((element) => 0.001 + (element.joint.minAngle + element.joint.maxAngle) * Math.PI / 360)
+    // console.log(THETAS)
 }
 
 function createGround() {
@@ -264,6 +269,7 @@ async function render() {
     orbit.update()
 
     solver.update()
+    // console.log(solver._thetas)
 
     if (solver.loss < 0.0001) {
         // console.log(solver._iterations)
@@ -332,10 +338,11 @@ initArmGUI()
 createGround()
 generateObstacles()
 
-let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+let collisionProvider = new CollisionProvider(armjson, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
-let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+// let solver = new IKSolver3D(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 // let solver = new IKSolverGA(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
+let solver = new IKSolverJCP(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)
 solver.target = TARGET
 solver.initialize()

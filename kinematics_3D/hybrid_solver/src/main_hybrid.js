@@ -97,7 +97,7 @@ function updateArmJSON() {
     loadArmFromJSON(editor.get())
 
     arm.cleanup()
-    collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+    collisionProvider = new CollisionProvider(armjson, obstacles)
     arm = new Arm3D(armjson, scene, collisionProvider)
     solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
     solver.solve(TARGET)
@@ -322,7 +322,7 @@ initArmGUI()
 createGround()
 generateObstacles()
 
-let collisionProvider = new CollisionProvider(armjson.arm, obstacles)
+let collisionProvider = new CollisionProvider(armjson, obstacles)
 let arm = new Arm3D(armjson, scene, collisionProvider)
 let solver = new IKSolverHybrid(AXES, LENGTHS, THETAS, ORIGIN, MIN_ANGLES, MAX_ANGLES, collisionProvider)
 let target = drawTarget(TARGET)

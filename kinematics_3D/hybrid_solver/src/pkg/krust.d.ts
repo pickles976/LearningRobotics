@@ -1,22 +1,33 @@
 /* tslint:disable */
 /* eslint-disable */
 /**
-* @param {Array<any>} target_array
-* @param {Array<any>} origin_array
-* @param {Array<any>} angles_array
-* @param {Array<any>} axes_array
-* @param {Array<any>} radii_array
-* @returns {Float32Array}
 */
-export function solve_gd(target_array: Array<any>, origin_array: Array<any>, angles_array: Array<any>, axes_array: Array<any>, radii_array: Array<any>): Float32Array;
+export class InverseKinematics {
+  free(): void;
+/**
+* @param {string} field_str
+* @returns {InverseKinematics}
+*/
+  static new(field_str: string): InverseKinematics;
+/**
+* @param {string} target_str
+* @param {number} thresh
+* @returns {string}
+*/
+  solve(target_str: string, thresh: number): string;
+}
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly solve_gd: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly __wbg_inversekinematics_free: (a: number) => void;
+  readonly inversekinematics_new: (a: number, b: number) => number;
+  readonly inversekinematics_solve: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly __wbindgen_export_0: (a: number) => number;
   readonly __wbindgen_export_1: (a: number, b: number, c: number) => number;
+  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
+  readonly __wbindgen_export_2: (a: number, b: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;

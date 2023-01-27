@@ -1,4 +1,4 @@
-import { IDENTITY, mat4, transformLoss } from "../util/Geometry.js"
+import { IDENTITY, generateBackwardMats, generateForwardMats, generateMats, mat4, transformLoss } from "../util/Geometry.js"
 
 export class Solver {
 
@@ -44,33 +44,9 @@ export class Solver {
      */
     generateMats() {
 
-        this._matrices = []
-        this._matrices.push(this._origin)
-
-        for (let i = 0; i < this._axes.length; i++){
-            this._matrices.push(mat4(this._thetas[i], this._axes[i], this._radii[i]))
-        }
-
-        this._forwardMats = []
-        this._forwardMats.push(this._origin)
-
-        // generate all the forward partial matrix products
-        // [ O, O x A, O x A x B, O x A x B x C]
-        for (let i = 1; i < this._matrices.length; i++){
-            this._forwardMats.push(math.multiply(this._forwardMats[i - 1], this._matrices[i]))
-        }
-
-        this._backwardMats = []
-        this._backwardMats.push(this._matrices[this._matrices.length - 1])
-
-        // generate all the backwards partial matrix products
-        // [E, D x E, C x D x E] -> [C x D x E, D x E, E] + [ I ]
-        for (let i = 1; i < this._matrices.length; i++){
-            this._backwardMats.push(math.multiply(this._matrices[this._matrices.length - i - 1], this._backwardMats[i - 1]))
-        }
-
-        this._backwardMats = this._backwardMats.reverse()
-        this._backwardMats.push(IDENTITY)
+        this._matrices = generateMats(this._origin, this._thetas, this._axes, this._radii)
+        this._forwardMats = generateForwardMats(this._matrices)
+        this._backwardMats = generateBackwardMats(this._matrices)
 
         // this is really the forward pass error calculation
         this._endEffector = this._forwardMats[this._forwardMats.length - 1]

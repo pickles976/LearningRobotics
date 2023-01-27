@@ -1,4 +1,4 @@
-import { IDENTITY, mat4, transformLoss } from "../util/Geometry.js"
+import { IDENTITY, generateForwardMats, generateMats, mat4, transformLoss } from "../util/Geometry.js"
 import { Solver } from "./Solver.js"
 
 export class IKSolver3D extends Solver {
@@ -7,9 +7,9 @@ export class IKSolver3D extends Solver {
     ROT_CORRECTION = Math.PI
     MAX_DLOSS = 0.5
 
-    constructor(axes, radii, thetas, origin, minAngles, maxAngles, colliders) {
+    constructor(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider) {
 
-        super(axes, radii, thetas, origin, minAngles, maxAngles, colliders)
+        super(axes, radii, thetas, origin, minAngles, maxAngles, collisionProvider)
 
         // SGD vars
         this._learnRate = 0.70
@@ -40,8 +40,9 @@ export class IKSolver3D extends Solver {
 
             const deltaEndEffector = math.multiply(math.multiply(this._forwardMats[i], dMat), this._backwardMats[i+2])
 
-            // TODO: add jacobian entry for moving away from nearest obstacle and arm self-avoidance
+            // Delta loss
             let dLoss = (this._calculateLoss(deltaEndEffector) - this.loss) / d
+
             // console.log(`dLoss/dθ: ${dLoss}`)
 
             // Clamp dLoss
@@ -49,14 +50,25 @@ export class IKSolver3D extends Solver {
 
             const nudge = (this._momentums[i] * this._momentumRetain) + (dLoss * this._learnRate)
             let newTheta = this._thetas[i] - nudge
-
-            this._thetas[i] -= nudge
-            this._momentums[i] = dLoss
             
-            // if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) {
-            //     this._thetas[i] -= nudge
-            //     this._momentums[i] = dLoss
-            // }
+            if (this._angleConstraints && newTheta > this._minAngles[i] && newTheta < this._maxAngles[i]) 
+            {
+
+                let newThetas = JSON.parse(JSON.stringify(this._thetas))
+                newThetas[i] = newTheta
+
+                let mats = generateMats(this._origin, newThetas, this._axes, this._radii)
+                let forwardMats = generateForwardMats(mats)
+
+                if (!this._collisionProvider.isSelfIntersecting(forwardMats) && !this._collisionProvider.isIntersectingObstacles(forwardMats))
+                {
+                    this._thetas[i] -= nudge
+                    this._momentums[i] = dLoss
+                } else {
+                    this._thetas[i] += nudge
+                    this._momentums[i] = -dLoss
+                }
+            }
 
         }
 
