@@ -5,7 +5,8 @@ import pickle
 import struct
 import cv2
 
-HOST = "raspberrypi"  # The server's hostname or IP address
+# HOST = "raspberrypi"  # The server's hostname or IP address
+HOST = "172.20.1.41"
 PORT = 65432  # The port used by the server
 
 # how to read the data
