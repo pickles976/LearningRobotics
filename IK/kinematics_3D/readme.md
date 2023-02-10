@@ -15,3 +15,4 @@ https://github.com/pboechat/SAT.js?files=1
 
 main.js is used for testing the individual algorithms
 main_hybrid.js is used for testing the hybrid algorithm which solves in a single frame
+

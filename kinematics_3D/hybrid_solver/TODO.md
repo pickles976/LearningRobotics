@@ -1,5 +1,0 @@
-- [x] Build the twist vector
-- [ ] Calculate Transpose Jacobian
-- [ ] Calculate PseudoInverse Jacobian
-- [ ] Calculate Jacobian for obstacle avoidance
-- [ ] Apply gradient descent to values

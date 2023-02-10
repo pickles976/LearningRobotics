@@ -26,7 +26,7 @@ html, body {
    width: 100%;
    position: absolute; 
    display: flex;
-   bottom: 0; 
+   top: 0; 
    justify-content: center;
  }
 
