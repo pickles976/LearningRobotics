@@ -1,9 +1,31 @@
-import { KalmanFilter, gaussianRandom, linspace } from "./kalman.js"
+import { KalmanFilter} from "./kalman.js"
+import { gaussianRandom, linspace } from "./util.js"
 
-const dt = 0.1
-
+// canvas stuff
 const canvas = document.getElementById("canvas")
+canvas.height = window.innerHeight
+canvas.width = window.innerWidth
 const ctx = canvas.getContext("2d")
+
+canvas.addEventListener('mousemove', (e) => {handleMouseMove(e)})
+var offsetX=canvas.offsetLeft;
+var offsetY=canvas.offsetTop;
+let mouseX, mouseY = [0,0]
+
+ctx.strokeStyle = "black"
+
+function handleMouseMove(e){
+    console.log(mouseX, mouseY)
+    ctx.beginPath()
+    ctx.moveTo(mouseX, mouseY)
+    mouseX=parseInt(e.clientX-offsetX)
+    mouseY=parseInt(e.clientY-offsetY)
+    ctx.lineTo(mouseX, mouseY)
+    ctx.stroke()
+}
+
+// Controls stuff
+const dt = 0.1
 
 const F = math.matrix([
     [1, dt, 0], 
@@ -35,21 +57,3 @@ measurements.forEach((z) => {
     predictions.push(math.multiply(H, kf.predict())._data[0][0])
     kf.update(z)
 })
-
-// draw on canvas
-ctx.moveTo(0, 0);
-for (let i = 1; i < x.length; i++) {
-    ctx.beginPath();
-    ctx.moveTo((i - 1) * 7.2, measurements[i - 1] + 250);
-    ctx.lineTo((i) * 7.2, measurements[i] + 250);
-    ctx.stroke();
-}
-
-ctx.moveTo(0, 0);
-ctx.strokeStyle = "red"
-for (let i = 1; i < predictions.length; i++) {
-    ctx.beginPath();
-    ctx.moveTo((i - 1) * 7.2, predictions[i - 1] + 250);
-    ctx.lineTo((i) * 7.2, predictions[i] + 250);
-    ctx.stroke();
-}
