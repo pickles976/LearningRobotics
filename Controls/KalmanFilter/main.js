@@ -13,9 +13,9 @@ var offsetY=canvas.offsetTop;
 let mouseX, mouseY, mouseNoisyX, mouseNoisyY, kalmanX, kalmanY = [0,0,0,0]
 
 // Controls stuff
-const dt = 0.1
-const stdX = 3.0
-const stdY = 3.0
+const dt = 0.2
+const stdX = 10.0
+const stdY = 6.0
 
 const F = math.matrix([
     [1, 0, dt, 0], 
@@ -50,13 +50,22 @@ const kf = new KalmanFilter(F, H, Q, R, math.matrix([0,0,0,0]))
 
 function handleMouseMove(e){
 
-    // Draw noisy line
+    // Draw true line
     ctx.strokeStyle = "black"
     ctx.beginPath()
-    ctx.moveTo(mouseNoisyX, mouseNoisyY)
+    ctx.moveTo(mouseX, mouseY)
 
     mouseX=parseInt(e.clientX-offsetX)
     mouseY=parseInt(e.clientY-offsetY)
+
+    ctx.lineTo(mouseX, mouseY)
+    ctx.stroke()
+
+    // Draw noisy line
+    ctx.strokeStyle = "red"
+    ctx.beginPath()
+    ctx.moveTo(mouseNoisyX, mouseNoisyY)
+
     mouseNoisyX = mouseX + gaussianRandom(0,stdX)
     mouseNoisyY = mouseY + gaussianRandom(0, stdY)
 
