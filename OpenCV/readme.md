@@ -1,0 +1,1 @@
+https://singleboardblog.com/install-python-opencv-on-raspberry-pi/
