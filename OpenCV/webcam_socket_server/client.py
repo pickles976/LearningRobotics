@@ -16,6 +16,8 @@ print("payload_size: {}".format(payload_size))
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
 
+    print("Connecting to host...")
+
     s.connect((HOST, PORT))
 
     while True:
