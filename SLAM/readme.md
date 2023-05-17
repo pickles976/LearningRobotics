@@ -11,3 +11,5 @@ Av = a creates a vector, a from skew symmetric matrix
 
 # Examples from other guy
 https://github.com/sudo-robot-destroy/slambook_python/tree/master
+
+export PYTHONPATH="$PYTHONPATH:/home/sebastian/Projects/symforce:/home/sebastian/Projects/symforce/build/lcmtypes/python2.7"
