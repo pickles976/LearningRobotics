@@ -12,7 +12,7 @@ class VisualOdometry():
         self.K, self.P = self._load_calib(os.path.join(data_dir, 'calib.txt'))
         self.gt_poses = self._load_poses(os.path.join(data_dir, 'poses.txt'))
         self.images = self._load_images(os.path.join(data_dir, 'image_l'))
-        self.orb = cv2.ORB_CREATE(3000)
+        self.orb = cv2.ORB_create(3000)
         FLANN_INDEX_LSH = 6
         index_params = dict(algorithm=FLANN_INDEX_LSH, table_number=6, key_size=12, multi_probe_level=1)
         search_params = dict(checks=50)
@@ -129,7 +129,7 @@ class VisualOdometry():
         
         img3 = cv2.drawMatches(self.images[i], kp1, self.images[i-1], kp2, good, None, **draw_params)
         cv2.imshow("image", img3)
-        cv2.waitkey(200)
+        cv2.waitKey(200)
 
         # Get the image points from the good matches
         q1 = np.float32([kp1[m.queryIdx].pt for m in good])
@@ -237,6 +237,7 @@ def main():
             q1, q2 = vo.get_matches(i)
             transf = vo.get_pose(q1, q2) # transformation from world to camera, from extrinsic matrix
             cur_pose = np.matmul(cur_pose, np.linalg.inv(transf)) # this calculated delta needs to be inverted to convert from camera to world
+        gt_path.append((gt_pose[0, 3], gt_pose[2, 3]))
         estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
 
     plotting.visualize_paths(gt_path, estimated_path, "Visual Odometry", file_out=os.path.basename(data_dir) + ".html")
