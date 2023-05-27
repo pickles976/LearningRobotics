@@ -203,7 +203,7 @@ def main():
     data_dir = "CUSTOM_sequence" #
     vo = VisualOdometry(data_dir)
 
-    # play_trip(vo.images)
+    play_trip(vo.images)
 
     gt_path = []
     estimated_path = []
