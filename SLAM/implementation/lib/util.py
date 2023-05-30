@@ -12,7 +12,7 @@ def closest_centroid(x, centroids):
 
 def extract_orb_features(images):
         descriptor_list = []
-        orb = cv2.ORB_create()
+        orb = cv2.ORB_create(nfeatures=1500)
 
         # Loop over classes
         for image in tqdm(images):

@@ -11,7 +11,7 @@ class BagOfWords:
     def __init__(self, n_clusters=150):
         self.visual_words = None
         self.n_clusters = n_clusters
-        self.orb = cv2.ORB_create()
+        self.orb = cv2.ORB_create(nfeatures=1500)
 
     def generate_from_images(self, image_dir):
         
