@@ -13,9 +13,10 @@
 - [x] Histogram generation
 - [ ] ~~TFIDF scoring~~
 - [ ] Return closest match brute force
-- [ ] Apply LSH
 - [ ] Compare prior similarity
 - [ ] Detect loop closure
+- [ ] Apply LSH https://github.com/kayzhu/LSHash
+http://ethen8181.github.io/machine-learning/recsys/content_based/lsh_text.html#Locality-Sensitive-Hashing-(LSH)---Cosine-Distance
 
 This folder consists of me following along with the SLAM book english translation in Python
 
