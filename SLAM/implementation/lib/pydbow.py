@@ -4,7 +4,7 @@ import os
 from sklearn.cluster import MiniBatchKMeans
 from tqdm import tqdm
 
-from lib.util import extract_orb_features, closest_centroid
+from lib.util import closest_centroid
 
 class BagOfWords:
 
@@ -18,7 +18,7 @@ class BagOfWords:
         images = self._load_images_from_folder(image_dir)
         
         # descriptor list is unordered one, sift features that is seperated class by class for train data
-        descriptor_list = extract_orb_features(images) 
+        descriptor_list = self._extract_orb_features(images) 
         descriptor_list = np.stack(descriptor_list, dtype=np.float32)
 
         kmeans = MiniBatchKMeans(n_clusters=self.n_clusters, n_init=10)
@@ -47,6 +47,9 @@ class BagOfWords:
 
         return histogram
 
+    # def tfidf(self, hist):
+
+
 
     def _load_images_from_folder(self, folder):
         images = []
@@ -55,3 +58,15 @@ class BagOfWords:
             if img is not None:
                 images.append(img)
         return images
+
+    def _extract_orb_features(self, images):
+        descriptor_list = []
+
+        # Loop over classes
+        for image in tqdm(images):
+            kp, des = self.orb.detectAndCompute(image,None)
+
+            if des is not None:
+                descriptor_list.extend(des)
+        return descriptor_list
+        

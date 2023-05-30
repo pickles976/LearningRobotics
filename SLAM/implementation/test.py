@@ -1,6 +1,6 @@
 ### Test the Bag of Words implementation on custom dataset
 
-from pydbow import BagOfWords
+from util.pydbow import BagOfWords
 import cv2
 from scipy.spatial import distance
 import os
@@ -11,7 +11,7 @@ import json
 
 def run():
 
-    bow = BagOfWords(n_clusters=150)
+    bow = BagOfWords()
     bow.load("custom.npy")
 
     path = "./CUSTOM_sequence/images/"
@@ -42,7 +42,7 @@ def run():
     plot()
 
 def first_run():
-    bow = BagOfWords()
+    bow = BagOfWords(n_clusters=150)
     bow.generate_from_images("./CUSTOM_sequence/images")
     bow.save("custom")
 
