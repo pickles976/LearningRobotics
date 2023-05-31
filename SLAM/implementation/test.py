@@ -1,6 +1,6 @@
 ### Test the Bag of Words implementation on custom dataset
 
-from util.pydbow import BagOfWords
+from lib.pydbow import BagOfWords
 import cv2
 from scipy.spatial import distance
 import os
@@ -63,4 +63,5 @@ def plot():
     plt.show()
 
 if __name__ == "__main__":
-    first_run()
+    # first_run()
+    run()
