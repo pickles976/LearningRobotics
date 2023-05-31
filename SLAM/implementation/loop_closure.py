@@ -16,11 +16,10 @@ from scipy.spatial import distance
 # # Take in an array of histograms
 # images = []
 # print("Loading images...")
-# for i, cat in tqdm(enumerate(os.listdir(folder))):
-#     if i % 5 == 0:
-#         img = cv2.imread(folder + "/" + cat,0)
-#         if img is not None:
-#             images.append((img, cat))
+# for cat in tqdm(os.listdir(folder)):
+#     img = cv2.imread(folder + "/" + cat,0)
+#     if img is not None:
+#         images.append((img, cat))
 
 # images = sorted(images, key = lambda x: x[1])
 
@@ -49,7 +48,8 @@ for i in range(10,len(histograms)):
     for j in range(i - 10, 0, -1):
         cur_dist = 1 - distance.cosine(histograms[i], histograms[j])
 
-        if cur_dist > 0.88 and cur_dist > (3.0 * distance.cosine(histograms[i], histograms[i-1])):
+        # check that the cu
+        if cur_dist > 0.9 and cur_dist > (3.0 * distance.cosine(histograms[i], histograms[i-1])):
             loop_indices.append((i, j))
             # print(cur_dist)
             # print(distance.cosine(histograms[i], histograms[i-1]))

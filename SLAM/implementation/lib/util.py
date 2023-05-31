@@ -21,4 +21,3 @@ def extract_orb_features(images):
             if des is not None:
                 descriptor_list.extend(des)
         return descriptor_list
-        

@@ -1,8 +1,8 @@
 # SLAM implementation from scratch
 
 ## TODO:
-- [ ] Finish Bag of Words dictionary
-- [ ] Implement Loop Closure
+- [x] Finish Bag of Words dictionary
+- [x] Implement Loop Closure
 - [ ] Use Loop closure to optimize pose graph
 - [ ] Clean up
 - [ ] Add 3D reconstruction
@@ -12,9 +12,9 @@
 - [x] K-means clustering
 - [x] Histogram generation
 - [ ] ~~TFIDF scoring~~
-- [ ] Return closest match brute force
-- [ ] Compare prior similarity
-- [ ] Detect loop closure
+- [x] Return closest match brute force
+- [x] Compare prior similarity
+- [x] Detect loop closure
 - [ ] Apply LSH https://github.com/kayzhu/LSHash
 http://ethen8181.github.io/machine-learning/recsys/content_based/lsh_text.html#Locality-Sensitive-Hashing-(LSH)---Cosine-Distance
 
