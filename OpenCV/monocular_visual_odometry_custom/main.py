@@ -17,8 +17,9 @@ def main():
     play_trip(vo.images)
 
     poses = []
+    odom = []
     estimated_path = []
-    images=os.listdir(os.path.join(data_dir, "image_l"))
+    images=os.listdir(os.path.join(data_dir, "images"))
     print(images)
     for i, img in enumerate(tqdm(images, unit="pose")):
         if i == 0:
@@ -26,7 +27,9 @@ def main():
         else:
             q1, q2 = vo.get_matches(i)
             transf = vo.get_pose(q1, q2) # transformation from world to camera, from extrinsic matrix
-            cur_pose = np.matmul(cur_pose, np.linalg.inv(transf)) # this calculated delta needs to be inverted to convert from camera to world
+            transf = np.linalg.inv(transf)
+            odom.append(transf.tolist())
+            cur_pose = cur_pose @ transf # this calculated delta needs to be inverted to convert from camera to world
             poses.append(cur_pose.tolist())
        # gt_path.append((gt_pose[0, 3], gt_pose[2, 3]))
         estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
@@ -36,6 +39,10 @@ def main():
     # save off path to json
     with open('poses.json', 'w') as fp:
         json.dump({ "poses" : poses }, fp)
+
+    # save off odometry 
+    with open('odometry.json', 'w') as fp:
+        json.dump({ "poses" : odom }, fp)
 
 if __name__ == "__main__":
     main()

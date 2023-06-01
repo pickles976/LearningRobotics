@@ -50,9 +50,10 @@ for i in range(10,len(histograms)):
 
         # check that the cu
         if cur_dist > 0.9 and cur_dist > (3.0 * distance.cosine(histograms[i], histograms[i-1])):
-            loop_indices.append((i, j))
+            loop_indices.append(((i, j), cur_dist))
 
 # Throw out matches that are too close
+# print(loop_indices)
 loop_indices = list(filter(lambda x: x[0][0] - x[0][1] > 50, loop_indices))
 loop_indices = sorted(loop_indices, key = lambda x: -x[1]) # find best loop candidate
 

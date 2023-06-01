@@ -98,10 +98,10 @@ class VisualOdometry():
         transformation_matrix (ndarray): The transformation matrix
         """
         # Essential Matrix
-        E, _ = cv2.findEssentialMat(q1, q2, self.K, threshold=1)
+        E, _ = cv2.findEssentialMat(prev_image, new_image, self.K, threshold=1)
 
         # Decompose the Essential matrix into R and t
-        R, t = self.decomp_essential_mat(E, q1, q2)
+        R, t = self.decomp_essential_mat(E, prev_image, new_image)
 
         # Get transformation matrix
         transformation_matrix = self._form_transf(R, np.squeeze(t))

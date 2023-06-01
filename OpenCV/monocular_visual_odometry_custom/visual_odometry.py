@@ -12,7 +12,7 @@ class VisualOdometry():
     def __init__(self, data_dir):
         self.K, self.d, self.P = self._loadCameraMatrix(os.path.join(data_dir, 'calib.json'))
         # self.gt_poses = self._load_poses(os.path.join(data_dir, 'poses.txt'))
-        self.images = self._load_images(os.path.join(data_dir, 'image_l'))
+        self.images = self._load_images(os.path.join(data_dir, 'images'))
         self.orb = cv2.ORB_create(1500)
         FLANN_INDEX_LSH = 6
         index_params = dict(algorithm=FLANN_INDEX_LSH, table_number=6, key_size=12, multi_probe_level=1)
